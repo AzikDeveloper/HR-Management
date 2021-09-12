@@ -1,0 +1,54 @@
+{% extends 'hrm/main.html' %}
+
+{% block content %}
+<div class="row m-5">
+    <div class="col-md w-25">
+        <div class="card p-5">
+            <h3>View task</h3>
+            <hr>
+            <div class="row">
+                <div class="col">
+                    <div class="form-group">
+                        <label>Assigned to</label>
+                        <input type="text" value="{{assigned_to}}" class="form-control w-50" disabled>
+                  </div>
+                </div>
+                <div class="col">
+                    <div class="form-group">
+                        <label>Task name</label>
+                        <input type="text" value="{{task.name}}" class="form-control w-50" disabled>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <div class="form-group">
+                        <label>Status</label>
+                        <input type="text" value="{{task.status}}" class="form-control w-50" disabled>
+                  </div>
+                </div>
+                <div class="col">
+                    <div class="form-group">
+                        <label for="formGroupExampleInput">DeadLine</label>
+                        <p><input class="form-control w-50" type="datetime-local" value="{{ task.deadline|date:'Y-m-d' }}T{{ task.deadline|date:'h:i:s' }}" disabled></p>
+                    </div>
+                </div>
+            </div>
+            <p>Context</p>
+
+            <p><textarea name="context" cols="40" rows="5" class="form-control" maxlength="5000" required="" id="id_context" disabled>{{task.context}}</textarea></p>
+            <div class="card">
+                <div class="card-header">Note from the employee</div>
+                <div class="card-body">
+                    <i>{{task.note}}</i>
+                </div>
+            </div>
+            <form action="" method="POST" style="text-align: right;">
+                {% csrf_token %}
+                <input type="submit" value="Back" class="btn btn-info mt-2"/>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,135 @@
+{% extends 'hrm/main.html' %}
+{% block content %}
+
+<div class="container m-2">
+    <div class="row">
+        <div class="col-md">
+            <div class="card m-1">
+                <div class="card-header"><h4>Add employee</h4></div>
+                <div class="card-body">
+                    <form method="post" action="{% url 'add_employee' %}">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label>Email address</label>
+                            <input type="text" placeholder="example@email.com" name="email" class="form-control" required>
+                            <br>
+                            <input type="hidden" name="section_id" value="{{my_section.id}}">
+                            <input type="hidden" name="next" value="{{request.path}}">
+                            <input type="submit" class="btn btn-info mt-2" value="add" style="float:right;">
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md">
+            <div class="card card-body m-1 shadow-sm mb-3 bg-white rounded">
+                <form method="get">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <input type="text" name="username" class="form-control w-100">
+                        </div>
+                        <div class="col-md">
+                             <button class="btn btn-primary" type="submit" name="search_manager" value="submit" style="float:right;">Search</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="card m-1 shadow-sm p-1 mb-5 bg-white rounded">
+                <div class="card-header"><h4>Managers:</h4></div>
+                <div class="card-body p-0">
+                    <table class="table table-sm table-striped">
+                        <thead class="thead-dark">
+                            <tr>
+                            <th>Username</th>
+                            <th style="text-align: center">Send Message</th>
+                            <th>View</th>
+                        </tr>
+                        </thead>
+                        {% for manager in managers %}
+                            <tr>
+                                <td>{{manager}}</td>
+                                <td style="text-align: center"><a data-toggle="modal" id="{{manager.id}}" onclick="setID(this)" data-target="#sendMessage" class="btn btn-sm btn-outline-info">+</a> </td>
+                                <td><a class="btn btn-outline-info btn-sm" href="{% url 'employee_profile' manager.id %}">View</a></td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-md">
+            <div class="card card-body m-1 shadow-sm mb-3 bg-white rounded">
+                <form method="get">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <input type="text" name="username" class="form-control w-100">
+                        </div>
+                        <div class="col-md">
+                             <button class="btn btn-primary" type="submit" name="search_employee" value="submit" style="float:right;">Search</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="card m-1 shadow-sm p-1 mb-5 bg-white rounded">
+                <div class="card-header"><h4>Employees:</h4></div>
+                <div class="card-body p-0">
+                    <table class="table table-sm table-striped">
+                        <thead class="thead-dark">
+                            <tr>
+                            <th>Username</th>
+                            <th style="text-align: center">Add Task</th>
+                            <th>View</th>
+                        </tr>
+                        </thead>
+                        {% for employee in employees %}
+                            <tr>
+                                <td>{{employee}}</td>
+                                <td style="text-align: center"><a href="{% url 'create_task' employee.id %}?next={{request.path}}" class="btn btn-sm btn-outline-info">+</a> </td>
+                                <td><a class="btn btn-outline-info btn-sm" href="{% url 'employee_profile' employee.id %}">View</a></td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+<!-- Modal SendMessage   -->
+<div class="modal fade" id="sendMessage" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <form action="{% url 'send_message' %}" method="POST">
+                      {% csrf_token %}
+                      <div class="modal-header">
+                            <h5 class="modal-title" id="exampleModalLabel">Send Message</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                              <span aria-hidden="true">&times;</span>
+                            </button>
+                      </div>
+                      <div class="modal-body">
+                            <input type="hidden" id="receiver" name="employee_id" value="">
+                            <input type="hidden" name="next" value="{{request.path}}">
+                            <input type="text" autocomplete="off" name="message" class="form-control">
+                      </div>
+                      <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary" onclick="getID()">Send</button>
+                      </div>
+                </form>
+            </div>
+      </div>
+</div>
+<script>
+    var messageReceiverID;
+    function setID(element){
+        messageReceiverID = element.id
+    }
+    function getID(){
+        document.getElementById("receiver").value = messageReceiverID
+    }
+
+</script>
+{% endblock %}

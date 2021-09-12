@@ -1,0 +1,106 @@
+{% extends 'hrm/main.html' %}
+{% block content %}
+
+    <style>
+         .table {
+            border-collapse: collapse;
+            margin: 20px 0px;
+            font-size: 0.9em;
+            border-radius: 5px 5px 0 0;
+            overflow: hidden;
+            box-shadow: 0 0 20px rgba(0,0,0,0.25);
+        }
+        .table tbody tr:last-of-type{
+            border-bottom: 1px solid #000000;
+          }
+    </style>
+    <div class="all">
+        <br>
+
+        <div class="row">
+            <div class="col-md">
+                <div class="card card-body">
+                    <h4>{{ employee.first_name }} {{employee.last_name}}</h4>
+                    <h6>@{{ employee }}</h6>
+                    <p class="mb-0">section: {{employee.section}}</p>
+                    {% if position == 'manager' %}
+                        <div style="color: green;" class="mt-0 mb-0">[{{position}}]</div>
+                    {% else %}
+                        <div style="color: blue;">[{{position}}]</div>
+                    {% endif %}
+                    <hr>
+                    <a class="btn btn-outline-info  btn-sm btn-block" href="{% url 'edit_profile' %}?next={{request.path}}">Edit Profile</a>
+                </div>
+            </div>
+
+            <div class="col-md">
+                <div class="card card-body">
+                    <h5>Messages</h5>
+                    <hr>
+                    <table id="messagesTable">
+                        {% for message in messages %}
+                            <tr>
+                                <th>{{message.sender}}:</th>
+                                <td>{{message.text}}</td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+            </div>
+
+            <div class="col-md">
+                <div class="card card-body">
+                    <h5>Total Tasks</h5>
+                    <hr color="blue">
+                    <h1 style="text-align: center;padding: 10px">{{tasks_count}}</h1>
+                </div>
+            </div>
+            <div class="col-md">
+                <div class="card card-body">
+                    <h5>Tasks Done</h5>
+                    <hr color="green">
+                    <h1 style="text-align: center;padding: 10px">{{tasks_done_count}}</h1>
+                </div>
+            </div>
+        </div>
+        <br>
+        <h4>Tasks history:</h4>
+        <div class="row">
+            <div class="col-md">
+                <form method="get">
+                    <table id="table" class="table table-sm table-striped">
+                        <thead class="thead-dark">
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Date Given</th>
+                                    <th>Deadline</th>
+                                    <th>End date</th>
+                                    <th>Status</th>
+                                    <th>Enter</th>
+                                </tr>
+                                <tr>
+                                    <th>{{filter.form.name}}</th>
+                                    <th>{{filter.form.date_given}}</th>
+                                    <th></th>
+                                    <th>{{filter.form.deadline}}</th>
+                                    <th>{{filter.form.status}}</th>
+                                    <th><button class="btn btn-info btn-sm" type="submit">Filter</button></th>
+                                </tr>
+                        </thead>
+                        {% for task in tasks %}
+                            <tr>
+                                <td>{{task.0.name}}</td>
+                                <td>{{task.0.date_given}}</td>
+                                <td><progress id="progress" value="{{task.1.value}}" max="{{task.1.max}}"> {{task.1.percentage}}% </progress></td>
+                                <td style="color:{{task.1.deadline_color}};">{{task.0.deadline}}</td>
+                                <td style="color:{{task.1.status_color}};"><b>{{task.0.status}}</b></td>
+                                <td><a href="{% url 'task_info' task.0.id %}" class="btn btn-sm btn-outline-info">Enter</a></td>
+                            </tr>
+                        {% endfor %}
+
+                    </table>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}

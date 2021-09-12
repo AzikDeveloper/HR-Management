@@ -1,0 +1,37 @@
+{% load static %}
+<div class="col-md">
+    <div class="card card-body m-1">
+            <form method="get">
+                <div class="row">
+                    <div class="col">
+                        <input type="text" class="form-control">
+                    </div>
+                    <div class="col">
+                         <button class="btn btn-primary" type="submit">Search</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    <div class="card m-1">
+        <div class="card-header"><h4>Latest tasks:</h4></div>
+        <div class="card-body">
+            <table class="table table-sm table-striped">
+                <thead class="thead-dark">
+                    <tr>
+                    <th>Name</th>
+                    <th>Status</th>
+                    <th>Enter</th>
+                </tr>
+                </thead>
+                {% for employee in employees %}
+                    <tr>
+                        <td>{{employee}}</td>
+                        <td><a href="#" class="btn btn-sm btn-outline-info">+</a> </td>
+                        <td><a class="btn btn-outline-info btn-sm" href="{% url 'employee_profile' employee.id %}">Enter</a></td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+</div>
+

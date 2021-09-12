@@ -1,0 +1,56 @@
+{% load static %}
+    <div class="col-md">
+        <div class="card m-1">
+            <div class="card-header"><h4>Add employee</h4></div>
+            <div class="card-body">
+                <form method="post" action="{% url 'add_employee' %}">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label>Email address</label>
+                        <input type="text" placeholder="example@email.com" name="email" class="form-control" required>
+                        <br>
+                        <input id="as_manager" type="checkbox" name="as_manager" value="true">
+                        <label for="as_manager">manager</label>
+                        <input type="submit" class="btn btn-info mt-2" value="add" style="float:right;">
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-md">
+        <div class="card card-body m-1">
+                <form method="get">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <input type="text" class="form-control w-100">
+                        </div>
+                        <div class="col-md">
+                             <button class="btn btn-primary" type="submit" style="float:right;">Search</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        <div class="card m-1">
+            <div class="card-header"><h4>Employees:</h4></div>
+            <div class="card-body">
+                <table class="table table-sm table-striped">
+                    <thead class="thead-dark">
+                        <tr>
+                        <th>Username</th>
+                        <th style="text-align: center">Add Task</th>
+                        <th>View</th>
+                    </tr>
+                    </thead>
+                    {% for employee in employees %}
+                        <tr>
+                            <td>{{employee}}</td>
+                            <td style="text-align: center"><a href="{% url 'create_task' employee.id %}" class="btn btn-sm btn-outline-info">+</a> </td>
+                            <td><a class="btn btn-outline-info btn-sm" href="{% url 'employee_profile' employee.id %}">View</a></td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+    </div>
+
+

@@ -1,0 +1,32 @@
+{% load static %}
+    <link rel="stylesheet" type="text/css" href = "{% static 'hrm/css/login.css' %}">
+    <link rel="stylesheet" href = "https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+<form action="" method="POST">
+  {% csrf_token %}
+  <div class="imgcontainer">
+    <img src="{% static 'shopbot/images/img_avatar.png' %}" alt="Avatar" class="avatar">
+  </div>
+
+  <div class="container">
+    <label for="uname"><b>Username</b></label>
+    <input type="text" placeholder="Enter Username" name="username" required>
+
+    <label for="psw"><b>Password</b></label>
+    <input type="password" placeholder="Enter Password" name="password" required>
+
+    <button type="submit">Login</button>
+    <label>
+      <input type="checkbox" checked="checked" name="remember"> Remember me
+    </label>
+
+
+  </div>
+
+    {% for message in messages %}
+    <div class="alert alert-{{message.tags}}">
+      <strong>{{message}}</strong>
+    </div>
+  {% endfor %}
+</form>
+

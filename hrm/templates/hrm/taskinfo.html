@@ -1,0 +1,36 @@
+{% extends 'hrm/main.html' %}
+
+{% block content %}
+<div class="row m-3">
+    <div class="col">
+        <form action="" method="POST">
+            {% csrf_token %}
+            <div class="card border-info mb-3" style="max-width: 100%;">
+                <div class="card-header">
+                    <h3>{{task.name}}</h3>
+                    <p><i>task from <a href="{% url 'employee_profile' task.task_giver.id %}">{{task.task_giver}}</a></i></p>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title text-info"><b>{{task.context}}</b></h5>
+                    <br>
+                    <p><b>Status:</b></p>
+                    <p class="card-text">
+                        <select name="status" class="form-control" style="max-width: 15%;" required="" id="id_status">
+                            {% for key, value in select_options.items %}
+                             <option value="{{key}}" {{value}}>{{key}}</option>
+                            {% endfor %}
+                        </select>
+                    </p>
+                    <p><b>Add note:</b></p>
+                    <p><textarea style="max-width: 50%;"  name="note" cols="20" rows="3" maxlength="500" class="form-control" required="" id="id_note">{{task.note}}</textarea></p>
+                    <div style="text-align: right;"><input type="submit" class="btn btn-info" value="Update" name="submit"></div>
+
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+
+{% endblock %}

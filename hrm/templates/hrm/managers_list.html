@@ -1,0 +1,38 @@
+{% load static %}
+    <div class="col-md">
+        <div class="card card-body m-1">
+            <form method="get">
+                <div class="row">
+                    <div class="col-md-8">
+                        <input type="text" class="form-control w-100">
+                    </div>
+                    <div class="col-md">
+                         <button class="btn btn-primary" type="submit" style="float:right;">Search</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="card m-1">
+            <div class="card-header"><h4>Managers:</h4></div>
+            <div class="card-body">
+                <table class="table table-sm table-striped">
+                    <thead class="thead-dark">
+                        <tr>
+                        <th>Username</th>
+                        <th style="text-align: center">Add Task</th>
+                        <th>View</th>
+                    </tr>
+                    </thead>
+                    {% for manager in managers %}
+                        <tr>
+                            <td>{{manager}}</td>
+                            <td style="text-align: center"><a href="{% url 'create_task' manager.id %}" class="btn btn-sm btn-outline-info">+</a> </td>
+                            <td><a class="btn btn-outline-info btn-sm" href="{% url 'employee_profile' manager.id %}">View</a></td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+    </div>
+
+

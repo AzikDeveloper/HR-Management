@@ -1,0 +1,1 @@
+    web: gunicorn AddBotUz.wsgi --log-file -

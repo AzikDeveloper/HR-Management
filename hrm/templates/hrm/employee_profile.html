@@ -1,0 +1,138 @@
+{% extends 'hrm/main.html' %}
+{% block content %}
+
+    <style>
+         .table {
+            border-collapse: collapse;
+            margin: 20px 0px;
+            font-size: 0.9em;
+            border-radius: 5px 5px 0 0;
+            overflow: hidden;
+            box-shadow: 0 0 20px rgba(0,0,0,0.25);
+        }
+        .table tbody tr:last-of-type{
+            border-bottom: 1px solid #000000;
+          }
+    </style>
+    <div class="all">
+        <br>
+
+        <div class="row">
+            <div class="col-md">
+                <div class="card card-body">
+                    <h4>{{ employee.first_name }} {{employee.last_name}}</h4>
+                    <h6>@{{employee.username}}</h6>
+
+                    <p class="mb-0">section: {{employee.section}}</p>
+                    {% if position == 'manager' %}
+                        <div style="color: green;" class="mt-0 mb-0">[{{position}}]</div>
+                    {% else %}
+                        <div style="color: blue;">[{{employee_position}}]</div>
+                    {% endif %}
+                    {% if position == 'director' %}
+                        <form method="POST" action="{% url 'change_position' %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="employee_id" value="{{employee.id}}">
+                            <input type="hidden" name="next" value="{{request.path}}">
+                            <input type="Submit" name="submit" value="change" class="btn btn-sm btn-outline-danger pt-0 pb-0">
+                        </form>
+                    {% endif %}
+                    <hr>
+                    <a data-toggle="modal" data-target="#sendMessage" class="btn btn-outline-info  btn-sm btn-block" href="#update">Send message</a>
+                    <a class="btn btn-outline-primary  btn-sm btn-block" href="{% url 'create_task' employee.id %}?next={{request.path}}">Add Task</a>
+
+                </div>
+            </div>
+
+            <div class="col-md">
+                <div class="card card-body">
+                    <h5>Contact Information</h5>
+                    <hr>
+                    <table>
+                        <tr>
+                            <th>Email:</th>
+                            <td><a href="mailto:{{employee.email}}">{{employee.email}}</a></td>
+                        </tr>
+                        <tr>
+                            <th>Phone:</th>
+                            <td><a href="">{{ employee.phone }}</a> </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <div class="col-md">
+                <div class="card card-body">
+                    <h5>Total Tasks</h5>
+                    <hr color="blue">
+                    <h1 style="text-align: center;padding: 10px">{{tasks_count}}</h1>
+                </div>
+            </div>
+            <div class="col-md">
+                <div class="card card-body">
+                    <h5>Tasks Done</h5>
+                    <hr color="green">
+                    <h1 style="text-align: center;padding: 10px">{{tasks_done_count}}</h1>
+                </div>
+            </div>
+        </div>
+        <br>
+        <h4>Tasks:</h4>
+        <div class="row">
+            <div class="col-md">
+                <table id="table" class="table table-sm table-striped">
+                    <thead class="thead-dark">
+                        <th>Name</th>
+                        <th>Date Given</th>
+                        <th>Deadline</th>
+                        <th>End date</th>
+                        <th>Status</th>
+                        <th>Proceed</th>
+                    </thead>
+                    {% for task in tasks %}
+                        <tr>
+                            <td>{{task.0.name}}</td>
+                            <td>{{task.0.date_given}}</td>
+                            <td><progress id="progress" value="{{task.1.value}}" max="{{task.1.max}}"> {{task.1.percentage}}% </progress></td>
+                            <td style="color:{{task.1.deadline_color}};">{{task.0.deadline}}</td>
+                            <td style="color:{{task.1.status_color}};"><b>{{task.0.status}}</b></td>
+                            {% if task.0.task_giver.user == request.user %}
+                                    <td><a href="{% url 'edit_task' task.0.id %}?next={{request.path}}" class="btn btn-sm btn-success pr-3">edit</a></td>
+                            {% else %}
+                                    <td><a href="{% url 'view_task' task.0.id %}?next={{request.path}}" class="btn btn-sm btn-info">View</a></td>
+                            {% endif %}
+                        </tr>
+                    {% endfor %}
+
+                </table>
+            </div>
+        </div>
+    </div>
+
+<!-- Modal SendMessage   -->
+<div class="modal fade" id="sendMessage" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <form action="{% url 'send_message' %}" method="POST">
+                      {% csrf_token %}
+                      <div class="modal-header">
+                            <h5 class="modal-title" id="exampleModalLabel">Send Message</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                              <span aria-hidden="true">&times;</span>
+                            </button>
+                      </div>
+                      <div class="modal-body">
+                            <input type="hidden" name="employee_id" value="{{employee.id}}">
+                            <input type="hidden" name="next" value="{{request.path}}">
+                            <input type="text" autocomplete="off" name="message" class="form-control">
+                      </div>
+                      <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary">Send</button>
+                      </div>
+                </form>
+            </div>
+      </div>
+</div>
+
+{% endblock %}
