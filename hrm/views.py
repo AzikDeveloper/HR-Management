@@ -15,7 +15,6 @@ from rest_framework.response import Response
 
 @api_view(['GET'])
 def apiTestView(request):
-    response = ''
     if request.user.is_authenticated:
         response = 'AUTHED'
     else:
@@ -137,7 +136,7 @@ def console(request):
         elif 'search_manager' in request.GET:
             m_filter = EmployeeFilter(request.GET, queryset=_managers)
             managers = m_filter.qs
-    context = {'employees': employees, 'managers': managers, 'home_active': home_active, 'sections': sections}
+    context = {'position': 'director' , 'employees': employees, 'managers': managers, 'home_active': home_active, 'sections': sections}
 
     return render(request, 'hrm/console.html', context)
 
@@ -169,7 +168,6 @@ def addEmployeeView(request):
 def employeeView(request):
     # navbar properties
     tasks_display = 'none'
-    sections_display = 'none'
     if groupName(request) == 'manager':
         tasks_display = ''
 
@@ -207,7 +205,6 @@ def employeeView(request):
         'tasks_count': tasks_count,
         'tasks_done_count': tasks_done_count,
         'tasks_display': tasks_display,
-        'sections_display': sections_display,
         'home_active': home_active,
         'filter': task_filter,
     }
@@ -218,12 +215,9 @@ def employeeView(request):
 @allowed_users(['manager', 'director'])
 def employeeProfileView(request, pk):
     # navbar properties
-    sections_display = 'none'
     my_section = ''
     position = groupName(request)
-    if groupName(request) == 'director':
-        sections_display = ''
-    elif groupName(request) == 'manager':
+    if groupName(request) == 'manager':
         my_section = request.user.employee.section
     home_active = ''
 
@@ -259,7 +253,6 @@ def employeeProfileView(request, pk):
         'tasks_count': tasks_count,
         'tasks_done_count': tasks_done_count,
         'home_active': home_active,
-        'sections_display': sections_display,
         'sections': sections
     }
     return render(request, 'hrm/employee_profile.html', context)
@@ -269,13 +262,9 @@ def employeeProfileView(request, pk):
 @allowed_users(['director', 'manager'])
 def createTaskView(request, pk):
     # navbar properties
-    sections_display = 'none'
     my_section = ''
-    position = ''
-    if groupName(request) == 'director':
-        sections_display = ''
-    elif groupName(request) == 'manager':
-        position = 'manager'
+    position = groupName(request)
+    if groupName(request) == 'manager':
         my_section = request.user.employee.section
 
     form = None
@@ -290,7 +279,6 @@ def createTaskView(request, pk):
     context = {
         'form': form,
         'sections': sections,
-        'sections_display': sections_display,
         'position': position,
         'my_section': my_section
     }
@@ -315,20 +303,16 @@ def createTaskView(request, pk):
 def editTaskView(request, pk):
     if request.user == models.Task.objects.get(id=pk).task_giver.user:
         # navbar properties
-        sections_display = 'none'
-        position = ''
         my_section = ''
-        if groupName(request) == 'director':
-            sections_display = ''
-        elif groupName(request) == 'manager':
-            position = 'manager'
+        position = groupName(request)
+        if groupName(request) == 'manager':
             my_section = request.user.employee.section
 
         task = models.Task.objects.get(id=pk)
         form = CreateTaskForm(instance=task)
         home_active = ''
         sections = models.Section.objects.all()
-        context = {'form': form, 'sections': sections, 'home_active': home_active, 'sections_display': sections_display, 'position': position, 'my_section': my_section}
+        context = {'form': form, 'sections': sections, 'home_active': home_active, 'position': position, 'my_section': my_section}
         if request.method == "POST":
             if 'save' in request.POST:
                 task_giver = task.task_giver
@@ -375,20 +359,21 @@ def enterTaskView(request, pk):
             return redirect('/')
 
     # navbar properties
-    sections_display = 'none'
-    position = ''
+    position = groupName(request)
     my_section = ''
-    if groupName(request) == 'director':
-        sections_display = ''
-    elif groupName(request) == 'manager':
-        position = 'manager'
+    if groupName(request) == 'manager':
         my_section = request.user.employee.section
 
     task = models.Task.objects.get(id=pk)
     task_giver = task.task_giver
     assigned_to = task.assigned_to
 
-    context = {'task': task, 'assigned_to': assigned_to}
+    context = {
+        'position': position,
+        'my_section': my_section,
+        'task': task,
+        'assigned_to': assigned_to
+       }
     return render(request, 'hrm/enter_task.html', context)
 
 
@@ -419,8 +404,13 @@ def taskInfoView(request, pk):
             'processing': ('selected' if select_selection == 'processing' else ''),
             'done': ('selected' if select_selection == 'done' else ''),
         }
-        print(select_options)
-        context = {'task': task, 'select_options': select_options, 'sections_display': sections_display, 'position': position, 'my_section': my_section}
+        context = {
+            'task': task,
+            'select_options': select_options,
+            'sections_display': sections_display,
+            'position': position,
+            'my_section': my_section
+        }
         statuses = ['new', 'processing', 'done']
         if request.method == "POST":
             if request.POST.get("status") in statuses:
@@ -445,10 +435,12 @@ def sendMessage(request):
 @authenticated_required
 @allowed_users(['director'])
 def sectionView(request, pk):
-    section = models.Section.objects.get(id=pk)
+    # navbar properties
     sections = models.Section.objects.all()
-    users = section.employee_set.all()
-    _users = models.User.objects.filter(employee__in=users)
+
+    section = models.Section.objects.get(id=pk)
+    employees = section.employee_set.all()
+    _users = models.User.objects.filter(employee__in=employees)
 
     _employees = _users.filter(groups__name='employee')
     _managers = _users.filter(groups__name='manager')
@@ -468,7 +460,14 @@ def sectionView(request, pk):
             m_filter = EmployeeFilter(request.GET, queryset=_managers)
             managers = m_filter.qs
 
-    context = {'section': section, 'sections': sections, 'employees': employees, 'managers': managers, 'sections_active': 'active'}
+    context = {
+        'position': 'director',
+        'sections_active': 'active',
+        'section': section,
+        'sections': sections,
+        'employees': employees,
+        'managers': managers
+    }
     return render(request, 'hrm/section.html', context)
 
 
@@ -476,15 +475,9 @@ def sectionView(request, pk):
 @allowed_users(['director', 'manager'])
 def tasksView(request):
     # navbar properties
-    sections_display = 'none'
     section = ''
-    position = ''
-    if groupName(request) in ['director']:
-        sections_display = ''
-    elif groupName(request) == 'manager':
-        section = request.user.employee.section.name
-        position = 'manager'
-    else:
+    position = groupName(request)
+    if groupName(request) == 'manager':
         section = request.user.employee.section.name
 
     sections = models.Section.objects.all()
@@ -529,10 +522,9 @@ def tasksView(request):
         'tasks_done_count': tasks_done_count,
         'tasks_processing_count': tasks_processing_count,
         'tasks_active': tasks_active,
-        'sections_display': sections_display,
+        'position': position,
         'section': section,
         'my_section': section,
-        'position': position,
         'sections': sections,
         'filter': task_filter,
     }
@@ -602,16 +594,11 @@ def mySectionView(request):
 def editProfileView(request):
     # navbar properties
     sections_display = 'none'
-    section = ''
-    position = ''
+    my_section = ''
+    position = groupName(request)
     context = {}
-    if groupName(request) in ['director']:
-        sections_display = ''
-    elif groupName(request) == 'manager':
-        section = request.user.employee.section.name
-        position = 'manager'
-    else:
-        section = request.user.employee.section.name
+    if groupName(request) == 'manager':
+        my_section = request.user.employee.section.name
     if request.method == 'POST':
         r_post = fullNameParser(request)
         if r_post:
@@ -637,5 +624,5 @@ def editProfileView(request):
         else:
             context['error'] = 'wrong full name'
     employee = request.user.employee
-    context = {'employee': employee, 'position': position, 'sections_display': sections_display, 'my_section': section}
+    context = {'employee': employee, 'position': position, 'my_section': my_section}
     return render(request, 'hrm/edit_profile.html', context)

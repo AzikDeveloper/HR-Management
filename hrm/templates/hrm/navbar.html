@@ -9,21 +9,30 @@
             <li class="nav-item {{home_active}}">
                 <a class="nav-link" href="{% url 'home' %}">Home</a>
             </li>
+            {% if position != 'employee' %}
             <li class="nav-item {{tasks_active}}" style="display: {{tasks_display}};">
                 <a class="nav-link" href="{% url 'tasks' %}">Tasks</a>
             </li>
-            <li class="nav-item dropdown {{sections_active}}" style="display: {{sections_display}};">
-                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    Sections
-                </a>
-                <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                    {% for section in sections %}
-                        <a class="dropdown-item" href="{% url 'section' section.id %}">{{section}}</a>
-                    {% endfor %}
-                    <div class="dropdown-divider"></div>
-                    <a type="button" class="dropdown-item" data-toggle="modal" data-target="#addSectionModal">Add section</a>
-                </div>
-            </li>
+            {% endif %}
+            {% if position == "director" %}
+                <li class="nav-item dropdown {{sections_active}}">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        {% if section %}
+                        {{section}}
+                        {% else %}
+                        Sections
+                        {% endif %}
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                        {% for section in sections %}
+                            <a class="dropdown-item" href="{% url 'section' section.id %}">{{section}}</a>
+                        {% endfor %}
+                        <div class="dropdown-divider"></div>
+                        <a type="button" class="dropdown-item" data-toggle="modal" data-target="#addSectionModal">Add section</a>
+                    </div>
+                </li>
+            {% endif %}
+
             {% if position == 'manager' %}
             <li class="nav-item {{section_active}}">
                 <a class="nav-link" href="{% url 'my_section' %}">{{my_section}}</a>

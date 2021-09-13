@@ -64,25 +64,25 @@
 							<div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
 								<div class="form-group">
 									<label for="id_street">Street</label>
-									<input name="street" type="text" class="form-control" id="id_street" placeholder="Enter Street" required>
+									<input name="street" value="{{employee.address.street}}" type="text" class="form-control" id="id_street" placeholder="Enter Street" required>
 								</div>
 							</div>
 							<div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
 								<div class="form-group">
 									<label for="id_city">City</label>
-									<input name="city" type="text" class="form-control" id="id_city" placeholder="Enter City" required>
+									<input name="city" value="{{employee.address.city}}" type="text" class="form-control" id="id_city" placeholder="Enter City" required>
 								</div>
 							</div>
 							<div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
 								<div class="form-group">
 									<label for="id_state">State</label>
-									<input name="state" type="text" class="form-control" id="id_state" placeholder="Enter State" required>
+									<input name="state" value="{{employee.address.state}}" type="text" class="form-control" id="id_state" placeholder="Enter State" required>
 								</div>
 							</div>
 							<div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
 								<div class="form-group">
 									<label for="id_zip_code">Zip Code</label>
-									<input name="zip_code" type="number" class="form-control" id="id_zip_code" placeholder="Zip Code" required>
+									<input name="zip_code" value="{{employee.address.zip_code}}" type="number" class="form-control" id="id_zip_code" placeholder="Zip Code" required>
 								</div>
 							</div>
 						</div>
