@@ -573,7 +573,6 @@ def addSectionView(request):
 @authenticated_required
 @allowed_users(['manager'])
 def mySectionView(request):
-
     employee = request.user.employee
     my_section = employee.section
 
@@ -605,6 +604,7 @@ def editProfileView(request):
     sections_display = 'none'
     section = ''
     position = ''
+    context = {}
     if groupName(request) in ['director']:
         sections_display = ''
     elif groupName(request) == 'manager':
@@ -612,7 +612,30 @@ def editProfileView(request):
         position = 'manager'
     else:
         section = request.user.employee.section.name
+    if request.method == 'POST':
+        r_post = fullNameParser(request)
+        if r_post:
+            user = request.user
+            user.username = r_post.get("username")
+            user.save()
 
+            employee = request.user.employee
+            employee.first_name = r_post.get("first_name")
+            employee.last_name = r_post.get("last_name")
+            employee.email = r_post.get("email")
+            employee.phone = r_post.get("phone")
+            employee.about = r_post.get("about")
+            address = models.Address.objects.create(
+                street=r_post.get("street"),
+                state=r_post.get("state"),
+                city=r_post.get("city"),
+                zip_code=int(r_post.get("zip_code")),
+                country=r_post.get("country")
+            )
+            employee.address = address
+            employee.save()
+        else:
+            context['error'] = 'wrong full name'
     employee = request.user.employee
     context = {'employee': employee, 'position': position, 'sections_display': sections_display, 'my_section': section}
     return render(request, 'hrm/edit_profile.html', context)

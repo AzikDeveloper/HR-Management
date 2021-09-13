@@ -3,101 +3,102 @@
 {% block content %}
 
 <div class="container">
-<div class="row gutters">
-<div class="col-xl-3 col-lg-3 col-md-12 col-sm-12 col-12">
-<div class="card h-100">
-	<div class="card-body">
-		<div class="account-settings">
-			<div class="user-profile">
-				<div class="user-avatar">
-					<img src="https://bootdey.com/img/Content/avatar/avatar7.png" alt="Maxwell Admin">
-				</div>
-				<h6 class="user-name">{{employee.first_name}}{{employee.last_name}}</h6>
-				<h6 class="user-email">{{employee.username}}</h6>
-			</div>
-			<div class="about">
-				<h5>About</h5>
-				<p><textarea maxlength="500" class="form-control" cols="25" rows="5">{{employee.about}}</textarea></p>
-			</div>
-		</div>
-	</div>
-</div>
-</div>
-<div class="col-xl-9 col-lg-9 col-md-12 col-sm-12 col-12">
-<div class="card h-100">
 	<form action="" method="post">
-		{% csrf_token %}
-		<div class="card-body">
-			<div class="row gutters">
-				<div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
-					<h6 class="mb-2 text-primary">Personal Details</h6>
-				</div>
-				<div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
-					<div class="form-group">
-						<label for="fullName">Full Name</label>
-						<input name="full_name" type="text" class="form-control" id="id_full_Name" placeholder="Enter full name" value="{{employee.first_name}} {{employee.last_name}}" required>
-					</div>
-				</div>
-				<div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
-					<div class="form-group">
-						<label for="phone">Username</label>
-						<input name="username" type="text" class="form-control" id="id_username" placeholder="Enter username" value="{{employee.username}}" required>
-					</div>
-				</div>
-				<div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
-					<div class="form-group">
-						<label for="eMail">Email</label>
-						<input name="email" type="email" class="form-control" id="id_email" placeholder="Enter email address" value="{{employee.email}}" required>
-					</div>
-				</div>
-				<div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
-					<div class="form-group">
-						<label for="phone">Phone</label>
-						<input name="phone" type="text" class="form-control" id="id_phone" placeholder="Enter phone number" value="{{employee.phone}}" required>
+		<div class="row gutters">
+			{% csrf_token %}
+			<div class="col-xl-3 col-lg-3 col-md-12 col-sm-12 col-12">
+				<div class="card h-100">
+					<div class="card-body">
+						<div class="account-settings">
+							<div class="user-profile">
+								<div class="user-avatar">
+									<img src="https://bootdey.com/img/Content/avatar/avatar7.png" alt="Maxwell Admin">
+								</div>
+								<h6 class="user-name">{{employee.first_name}}&nbsp{{employee.last_name}}</h6>
+								<h6 class="user-email">{{employee.username}}</h6>
+							</div>
+							<div class="about">
+								<h5>About</h5>
+								<p><textarea name="about" id="id_about" maxlength="500" class="form-control" cols="25" rows="5" required>{{employee.about}}</textarea></p>
+							</div>
+						</div>
 					</div>
 				</div>
 			</div>
-			<div class="row gutters">
-				<div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
-					<h6 class="mt-3 mb-2 text-primary">Address</h6>
-				</div>
-				<div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
-					<div class="form-group">
-						<label for="Street">Street</label>
-						<input name="street" type="text" class="form-control" id="Street" placeholder="Enter Street" required>
-					</div>
-				</div>
-				<div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
-					<div class="form-group">
-						<label for="ciTy">City</label>
-						<input name="city" type="text" class="form-control" id="ciTy" placeholder="Enter City" required>
-					</div>
-				</div>
-				<div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
-					<div class="form-group">
-						<label for="sTate">State</label>
-						<input name="state" type="text" class="form-control" id="sTate" placeholder="Enter State" required>
-					</div>
-				</div>
-				<div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
-					<div class="form-group">
-						<label for="zIp">Zip Code</label>
-						<input name="zip_code" type="number" class="form-control" id="zIp" placeholder="Zip Code" required>
-					</div>
-				</div>
-			</div>
-			<div class="row gutters">
-				<div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
-					<div class="text-right">
-						<button type="submit" value="submit" class="btn btn-primary">Update</button>
+			<div class="col-xl-9 col-lg-9 col-md-12 col-sm-12 col-12">
+				<div class="card h-100">
+					<div class="card-body">
+						<div class="row gutters">
+							<div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+								<h6 class="mb-2 text-primary">Personal Details</h6>
+							</div>
+							<div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+								<div class="form-group">
+									<label for="id_full_name">Full Name</label>
+									<input name="full_name" type="text" class="form-control" id="id_full_name" placeholder="Enter full name" value="{{employee.first_name}} {{employee.last_name}}" required>
+								</div>
+							</div>
+							<div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+								<div class="form-group">
+									<label for="id_username">Username</label>
+									<input name="username" type="text" class="form-control" id="id_username" placeholder="Enter username" value="{{employee.username}}" required>
+								</div>
+							</div>
+							<div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+								<div class="form-group">
+									<label for="id_email">Email</label>
+									<input name="email" type="email" class="form-control" id="id_email" placeholder="Enter email address" value="{{employee.email}}" required>
+								</div>
+							</div>
+							<div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+								<div class="form-group">
+									<label for="id_phone">Phone</label>
+									<input name="phone" type="text" class="form-control" id="id_phone" placeholder="Enter phone number" value="{{employee.phone}}" required>
+								</div>
+							</div>
+						</div>
+						<div class="row gutters">
+							<div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+								<h6 class="mt-3 mb-2 text-primary">Address</h6>
+							</div>
+							<div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+								<div class="form-group">
+									<label for="id_street">Street</label>
+									<input name="street" type="text" class="form-control" id="id_street" placeholder="Enter Street" required>
+								</div>
+							</div>
+							<div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+								<div class="form-group">
+									<label for="id_city">City</label>
+									<input name="city" type="text" class="form-control" id="id_city" placeholder="Enter City" required>
+								</div>
+							</div>
+							<div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+								<div class="form-group">
+									<label for="id_state">State</label>
+									<input name="state" type="text" class="form-control" id="id_state" placeholder="Enter State" required>
+								</div>
+							</div>
+							<div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+								<div class="form-group">
+									<label for="id_zip_code">Zip Code</label>
+									<input name="zip_code" type="number" class="form-control" id="id_zip_code" placeholder="Zip Code" required>
+								</div>
+							</div>
+						</div>
+						<div class="row gutters">
+							<div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+								<div class="text-right">
+									<button type="submit" value="submit" class="btn btn-primary">Update</button>
+								</div>
+							</div>
+						</div>
 					</div>
 				</div>
 			</div>
 		</div>
 	</form>
-</div>
-</div>
-</div>
+
 </div>
 
 <style type="text/css">

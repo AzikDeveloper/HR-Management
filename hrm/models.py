@@ -37,6 +37,7 @@ class Employee(models.Model):
     email = models.EmailField(max_length=200, null=True, blank=True)
     phone = models.CharField(max_length=200, null=True, blank=True)
     about = models.TextField(max_length=500, null=True, blank=True)
+    address = models.ForeignKey(Address, on_delete=models.SET_NULL, related_name='employee', null=True)
     section = models.ForeignKey(Section, on_delete=models.SET_NULL, null=True, blank=True)
 
     def __str__(self):
