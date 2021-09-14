@@ -3,6 +3,13 @@ from django.contrib.auth.models import User
 import uuid
 
 
+class Position(models.Model):
+    name = models.CharField(max_length=50, null=True)
+
+    def __str__(self):
+        return self.name
+
+
 class Director(models.Model):
     user = models.OneToOneField(User, on_delete=models.SET_NULL, null=True)
 
@@ -37,8 +44,9 @@ class Employee(models.Model):
     email = models.EmailField(max_length=200, null=True, blank=True)
     phone = models.CharField(max_length=200, null=True, blank=True)
     about = models.TextField(max_length=500, null=True, blank=True)
-    address = models.ForeignKey(Address, on_delete=models.SET_NULL, related_name='employee', null=True)
-    section = models.ForeignKey(Section, on_delete=models.SET_NULL, null=True, blank=True)
+    address = models.ForeignKey(Address, on_delete=models.SET_NULL, related_name='employees_by_address', null=True)
+    section = models.ForeignKey(Section, on_delete=models.SET_NULL, null=True, blank=True, related_name='employees_by_section')
+    position = models.ForeignKey(Position, on_delete=models.SET_NULL, related_name="employees_by_position", null=True)
 
     def __str__(self):
         try:
@@ -68,8 +76,8 @@ class Task(models.Model):
         ('processing', 'processing'),
         ('done', 'done')
     )
-    task_giver = models.ForeignKey(Employee, on_delete=models.CASCADE, null=True, related_name='my_tasks', blank=True)
-    assigned_to = models.ForeignKey(Employee, on_delete=models.SET_NULL, null=True)
+    task_giver = models.ForeignKey(Employee, on_delete=models.CASCADE, null=True, related_name='tasks_by_me', blank=True)
+    assigned_to = models.ForeignKey(Employee, on_delete=models.SET_NULL, null=True, related_name='tasks_to_me')
     name = models.CharField(max_length=200, null=True)
     context = models.TextField(max_length=5000)
     status = models.CharField(max_length=200, choices=STATUS, null=True)
@@ -88,5 +96,5 @@ class Message(models.Model):
     text = models.CharField(max_length=200, null=True)
 
     def __str__(self):
-        return str(self.id)
+        return f"{self.text} :{self.id}"
 

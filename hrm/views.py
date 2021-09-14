@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, HttpResponse
 from django.contrib.auth import authenticate, login, logout
-from .decorators import authenticated
+from .decorators import redirect_if_authenticated
 from .decorators import authenticated_required, allowed_users
 import uuid
 from . import models
@@ -25,9 +25,9 @@ def apiTestView(request):
 
 def groupName(request=None, user=None):
     if user is None:
-        return request.user.groups.all()[0].name
+        return request.user.employee.position.name
     else:
-        return str(user.groups.all()[0].name)
+        return user.employee.position.name
 
 
 def fullNameParser(request):
@@ -50,7 +50,7 @@ def fullNameParser(request):
         return False
 
 
-@authenticated
+@redirect_if_authenticated
 @authenticated_required
 def home(request):
     return render(request, 'hrm/home.html')
@@ -60,11 +60,9 @@ def registerView(request, pk):
     if len(pk) == 36:
         genLink = models.GenLink.objects.filter(link=uuid.UUID(pk))
         if genLink:
-            print("exist link")
             if request.method == 'POST':
-                print(request.POST)
                 if '@' in request.POST.get('username'):
-                    context = {'error': 'only a-z characters allowed'}
+                    context = {'error': '@ is not allowed in username'}
                     return render(request, 'hrm/register.html', context)
                 else:
                     request_post = fullNameParser(request)
@@ -82,13 +80,8 @@ def registerView(request, pk):
                             genLink.delete()
                             return redirect('login')
                         else:
-                            print("invalid form")
-                            for error in form.errors:
-                                print(error)
-                            errors = form.errors.as_text().split('\n')
-                            print(errors)
-
-                            return render(request, 'hrm/register.html')
+                            context = {'error': 'invalid form!'}
+                            return render(request, 'hrm/register.html', context)
                     else:
                         return render(request, 'hrm/register.html', context={'error': 'Wrong full name!'})
             return render(request, 'hrm/register.html')
@@ -98,7 +91,7 @@ def registerView(request, pk):
         return HttpResponse("<h1>404 not found")
 
 
-@authenticated
+@redirect_if_authenticated
 def loginView(request):
     if request.method == 'POST':
         username = request.POST.get('username')
@@ -108,83 +101,80 @@ def loginView(request):
             login(request, user)
             return redirect('/')
         else:
-            print("invalid!")
+            context = {'error': 'username or password is not correct!'}
+            return render(request, 'hrm/login.html', context)
     return render(request, 'hrm/login.html')
 
 
 @authenticated_required
-@allowed_users(['director'])
+@allowed_users(['Director'])
 def console(request):
     # navbar properties
     home_active = 'active'
-
     sections = models.Section.objects.all()
 
-    _employees = models.User.objects.filter(groups__name='employee')
-    _managers = models.User.objects.filter(groups__name='manager')
-
-    employees = models.Employee.objects.none()
-    managers = models.Employee.objects.none()
-    for _manager in _managers:
-        managers |= models.Employee.objects.filter(pk=_manager.employee.id)
-    for _employee in _employees:
-        employees |= models.Employee.objects.filter(pk=_employee.employee.id)
+    employees = models.Employee.objects.filter(position__name='Employee')
+    managers = models.Employee.objects.filter(position__name='Manager')
 
     if request.method == 'GET':
         if 'search_employee' in request.GET:
-            e_filter = EmployeeFilter(request.GET, queryset=_employees)
+            e_filter = EmployeeFilter(request.GET, queryset=employees)
             employees = e_filter.qs
         elif 'search_manager' in request.GET:
-            m_filter = EmployeeFilter(request.GET, queryset=_managers)
+            m_filter = EmployeeFilter(request.GET, queryset=managers)
             managers = m_filter.qs
-    context = {'position': 'director' , 'employees': employees, 'managers': managers, 'home_active': home_active, 'sections': sections}
+    context = {
+        'employees': employees,
+        'managers': managers,
+
+        # navbar properties
+        'home_active': home_active,
+        'sections': sections
+    }
 
     return render(request, 'hrm/console.html', context)
 
 
 @authenticated_required
-@allowed_users(['director', 'manager'])
+@allowed_users(['Director', 'Manager'])
 def addEmployeeView(request):
     if request.method == "POST":
         email = request.POST.get("email")
         user = models.User.objects.create_user(username=email, email=email)
-        if groupName(request) == 'director':
+        if groupName(request) == 'Director':
             if request.POST.get("as_manager") == "true":
-                group = Group.objects.get(name='manager')
+                position = models.Position.objects.get(name='manager')
             else:
-                group = Group.objects.get(name='employee')
+                position = models.Position.objects.get(name='employee')
         else:
-            group = Group.objects.get(name='employee')
-        user.groups.add(group)
+            position = models.Position.objects.get(name='employee')
         user.save()
+
         employee = user.employee
+        employee.position = position
         employee.section = models.Section.objects.get(id=request.POST.get("section_id"))
         employee.save()
 
         return redirect(request.POST.get("next"))
+    else:
+        return HttpResponse('<h3>404 not found </h3>')
 
 
 @authenticated_required
-@allowed_users(['employee', 'manager'])
+@allowed_users(['Employee', 'Manager'])
 def employeeView(request):
-    # navbar properties
-    tasks_display = 'none'
-    if groupName(request) == 'manager':
-        tasks_display = ''
+    employee = request.user.employee
+    messages = request.user.received_messages.all()
 
-    my_section = request.user.employee.section
-    employee = models.Employee.objects.get(id=request.user.employee.id)
-    position = groupName(user=employee.user)
-    messages = models.Message.objects.filter(receiver=request.user)
-
-    tasks = employee.task_set.all()
+    tasks = employee.tasks_to_me.all()
     tasks_count = tasks.count()
     tasks_done_count = tasks.filter(status='done').count()
 
-    home_active = 'active'
-    progresses = []
+    # filtering tasks
     task_filter = TaskFilter(request.GET, queryset=tasks)
     tasks = task_filter.qs
+
+    progresses = []
     for task in tasks:
         max = (task.deadline - task.date_given).total_seconds()
         val = (dt.datetime.today() - task.date_given).seconds
@@ -199,37 +189,36 @@ def employeeView(request):
 
     context = {
         'employee': employee,
-        'position': position,
-        'my_section': my_section,
         'messages': messages,
         'tasks': tasks,
         'tasks_count': tasks_count,
         'tasks_done_count': tasks_done_count,
-        'tasks_display': tasks_display,
-        'home_active': home_active,
         'filter': task_filter,
+
+        # navbar properties
+        'home_active': 'active',
     }
     return render(request, 'hrm/employee.html', context)
 
 
 @authenticated_required
-@allowed_users(['manager', 'director'])
+@allowed_users(['Manager', 'Director'])
 def employeeProfileView(request, pk):
     # navbar properties
-    my_section = ''
-    position = groupName(request)
-    if groupName(request) == 'manager':
-        my_section = request.user.employee.section
-    home_active = ''
-
     sections = models.Section.objects.all()
-    employee = models.Employee.objects.get(id=pk)
+
+    try:
+        employee = models.Employee.objects.get(id=pk)
+    except Exception:
+        return HttpResponse("<h3>404 not found!</h3>")
+
     if employee == request.user.employee:
         return redirect('/')
-    employee_position = groupName(user=employee.user)
-    tasks = employee.task_set.all()
+
+    tasks = employee.tasks_to_me.all()
     tasks_count = tasks.count()
     tasks_done_count = tasks.filter(status='done').count()
+
     progresses = []
     for task in tasks:
         max = (task.deadline - task.date_given).total_seconds()
@@ -240,51 +229,40 @@ def employeeProfileView(request, pk):
             deadline_color = 'red'
         status_color = {'new': '', 'processing': 'blue', 'done': 'green'}
         progresses.append({'value': val, 'max': max, 'percentage': percentage, 'deadline_color': deadline_color, 'status_color': status_color[task.status]})
+
     tasks = zip(tasks, progresses)
+
     if request.method == "POST":
         if request.POST.get("post_status") == "sendMessage":
             models.Message.objects.create(sender=request.user, receiver=employee.user, text=request.POST.get('message'))
 
     context = {
         'employee': employee,
-        'employee_position': employee_position,
-        'position': position,
-        'my_section': my_section,
         'tasks': tasks,
         'tasks_count': tasks_count,
         'tasks_done_count': tasks_done_count,
-        'home_active': home_active,
+
+        # navbar properties
         'sections': sections
     }
     return render(request, 'hrm/employee_profile.html', context)
 
 
 @authenticated_required
-@allowed_users(['director', 'manager'])
+@allowed_users(['Director', 'Manager'])
 def createTaskView(request, pk):
     # navbar properties
-    my_section = ''
-    position = groupName(request)
-    if groupName(request) == 'manager':
-        my_section = request.user.employee.section
-
-    form = None
-    user = None
-    if pk == "-1":
-        form = CreateTaskForm(initial={'status': 'new'})
-    else:
-        user = models.Employee.objects.get(id=pk)
-        form = CreateTaskForm(initial={'assigned_to': user, 'status': 'new'})
-
     sections = models.Section.objects.all()
-    context = {
-        'form': form,
-        'sections': sections,
-        'position': position,
-        'my_section': my_section
-    }
+
+    try:
+        user = models.Employee.objects.get(id=pk)
+    except Exception:
+        return HttpResponse("<h3>404 not found</h3>")
+
+    form = CreateTaskForm(initial={'assigned_to': user, 'status': 'new'})
+
     if request.method == "POST":
-        form = CreateTaskForm(request.POST, initial={'task_giver': request.user.employee})
+        form = CreateTaskForm(request.POST)
         if form.is_valid():
             task = form.save()
             task.task_giver = request.user.employee
@@ -294,88 +272,90 @@ def createTaskView(request, pk):
             except:
                 return redirect('/')
         else:
-            print(form.errors)
-            print("fard")
+            pass
+
+    context = {
+        'form': form,
+
+        # navbar properties
+        'sections': sections,
+    }
     return render(request, 'hrm/create_task.html', context)
 
 
 @authenticated_required
-@allowed_users(['director', 'manager'])
+@allowed_users(['Director', 'Manager'])
 def editTaskView(request, pk):
-    if request.user == models.Task.objects.get(id=pk).task_giver.user:
-        # navbar properties
-        my_section = ''
-        position = groupName(request)
-        if groupName(request) == 'manager':
-            my_section = request.user.employee.section
+    # navbar properties
+    sections = models.Section.objects.all()
 
+    try:
         task = models.Task.objects.get(id=pk)
+    except Exception:
+        return HttpResponse("<h3>404 not found</h3>")
+
+    if request.user == task.task_giver.user:
         form = CreateTaskForm(instance=task)
-        home_active = ''
-        sections = models.Section.objects.all()
-        context = {'form': form, 'sections': sections, 'home_active': home_active, 'position': position, 'my_section': my_section}
+
         if request.method == "POST":
             if 'save' in request.POST:
                 task_giver = task.task_giver
-                form = CreateTaskForm(request.POST, instance=task)
                 note = task.note
+
+                form = CreateTaskForm(request.POST, instance=task)
                 if form.is_valid():
-                    if str(form.cleaned_data['assigned_to']) != str(task.assigned_to.user.username):
-                        task = form.save()
-                        task.status = 'new'
-                        task.note = note
-                        task.task_giver = task_giver
-                        task.save()
-                    else:
-                        task = form.save()
-                        task.note = note
-                        task.task_giver = task_giver
-                        task.save()
+                    task = form.save()
+                    task.note = note
+                    task.task_giver = task_giver
+                    task.save()
                     try:
                         return redirect(request.GET.get('next'))
                     except:
                         return redirect('/')
                 else:
                     print(form.errors)
-                    print("fard")
             if 'delete' in request.POST:
-                employee = task.assigned_to
                 task.delete()
                 try:
                     return redirect(request.GET.get('next'))
                 except:
                     return redirect('/')
+
+        context = {
+            'form': form,
+
+            # navbar properties
+            'sections': sections,
+        }
         return render(request, 'hrm/edit_task.html', context)
     else:
         return redirect('view_task', pk=pk)
 
 
 @authenticated_required
-@allowed_users(['director', 'manager'])
-def enterTaskView(request, pk):
+@allowed_users(['Director', 'Manager'])
+def viewTaskView(request, pk):
+    # navbar properties
+    sections = models.Section.objects.all()
+
     if request.method == 'POST':
         try:
             return redirect(request.GET.get('next'))
         except:
             return redirect('/')
 
-    # navbar properties
-    position = groupName(request)
-    my_section = ''
-    if groupName(request) == 'manager':
-        my_section = request.user.employee.section
-
-    task = models.Task.objects.get(id=pk)
-    task_giver = task.task_giver
-    assigned_to = task.assigned_to
+    try:
+        task = models.Task.objects.get(id=pk)
+    except Exception:
+        return HttpResponse("<h3>404 not found</h3>")
 
     context = {
-        'position': position,
-        'my_section': my_section,
         'task': task,
-        'assigned_to': assigned_to
+
+        # navbar properties
+        'sections': sections
        }
-    return render(request, 'hrm/enter_task.html', context)
+    return render(request, 'hrm/view_task.html', context)
 
 
 @authenticated_required
@@ -385,115 +365,96 @@ def logoutView(request):
 
 
 @authenticated_required
-@allowed_users(['manager', 'employee'])
+@allowed_users(['Manager', 'Employee'])
 def taskInfoView(request, pk):
-    # navbar properties
-    sections_display = 'none'
-    position = ''
-    section_active = ''
-    my_section = ''
-    if groupName(request) == 'director':
-        sections_display = ''
-    elif groupName(request) == 'manager':
-        position = 'manager'
-        my_section = request.user.employee.section
-    task = models.Task.objects.get(id=pk)
+    try:
+        task = models.Task.objects.get(id=pk)
+    except Exception:
+        return HttpResponse('<h3>404 not found!</h3>')
+
     if task.assigned_to == request.user.employee:
+        if request.method == "POST":
+            if request.POST.get("status") in ['new', 'processing', 'done']:
+                task.status = request.POST.get("status")
+                task.note = request.POST.get("note")
+                task.save()
+                return redirect('/')
+
         select_selection = task.status
         select_options = {
             'new': ('selected' if select_selection == 'new' else ''),
             'processing': ('selected' if select_selection == 'processing' else ''),
             'done': ('selected' if select_selection == 'done' else ''),
         }
+
         context = {
             'task': task,
-            'select_options': select_options,
-            'sections_display': sections_display,
-            'position': position,
-            'my_section': my_section
+            'select_options': select_options
         }
-        statuses = ['new', 'processing', 'done']
-        if request.method == "POST":
-            if request.POST.get("status") in statuses:
-                task.status = request.POST.get("status")
-                task.note = request.POST.get("note")
-                task.save()
-                return redirect('/')
         return render(request, 'hrm/taskinfo.html', context)
     else:
-        return HttpResponse("<h1>you are not authorised to see this page</h1>")
+        return HttpResponse("<h3>you are not authorised to see this page</h1>")
 
 
 @authenticated_required
-@allowed_users(['director', 'manager'])
+@allowed_users(['Director', 'Manager'])
 def sendMessage(request):
     if request.method == "POST":
-        employee = models.Employee.objects.get(id=request.POST.get("employee_id"))
-        models.Message.objects.create(sender=request.user, receiver=employee.user, text=request.POST.get('message'))
+        try:
+            employee = models.Employee.objects.get(id=request.POST.get("employee_id"))
+        except Exception:
+            return HttpResponse("<h3>receiver not found!</h3>")
+
+        if len(request.POST.get('message')) > 0:
+            models.Message.objects.create(sender=request.user, receiver=employee.user, text=request.POST.get('message'))
+
         return redirect(request.POST.get("next"))
 
 
 @authenticated_required
-@allowed_users(['director'])
+@allowed_users(['Director'])
 def sectionView(request, pk):
     # navbar properties
     sections = models.Section.objects.all()
+    try:
+        section = models.Section.objects.get(id=pk)
+    except Exception:
+        return HttpResponse("<h3>404 section not found!")
 
-    section = models.Section.objects.get(id=pk)
-    employees = section.employee_set.all()
-    _users = models.User.objects.filter(employee__in=employees)
+    employees_in_section = section.employees_by_section.all()
 
-    _employees = _users.filter(groups__name='employee')
-    _managers = _users.filter(groups__name='manager')
-
-    employees = models.Employee.objects.none()
-    managers = models.Employee.objects.none()
-    for _manager in _managers:
-        managers |= models.Employee.objects.filter(pk=_manager.employee.id)
-    for _employee in _employees:
-        employees |= models.Employee.objects.filter(pk=_employee.employee.id)
+    employees = employees_in_section.filter(position__name='Employee')
+    managers = employees_in_section.filter(position__name='Manager')
 
     if request.method == 'GET':
         if 'search_employee' in request.GET:
-            e_filter = EmployeeFilter(request.GET, queryset=_employees)
+            e_filter = EmployeeFilter(request.GET, queryset=employees)
             employees = e_filter.qs
         elif 'search_manager' in request.GET:
-            m_filter = EmployeeFilter(request.GET, queryset=_managers)
+            m_filter = EmployeeFilter(request.GET, queryset=managers)
             managers = m_filter.qs
 
     context = {
-        'position': 'director',
+        'employees': employees,
+        'managers': managers,
+
+        # navbar properties
         'sections_active': 'active',
         'section': section,
-        'sections': sections,
-        'employees': employees,
-        'managers': managers
+        'sections': sections
     }
     return render(request, 'hrm/section.html', context)
 
 
 @authenticated_required
-@allowed_users(['director', 'manager'])
+@allowed_users(['Director', 'Manager'])
 def tasksView(request):
     # navbar properties
-    section = ''
-    position = groupName(request)
-    if groupName(request) == 'manager':
-        section = request.user.employee.section.name
-
     sections = models.Section.objects.all()
-    tasks_active = 'active'
-    tasks = models.Task.objects.none()
-    if groupName(request=request) == 'manager':
-        emps = request.user.employee.section.employee_set.all()
-        managers = models.Employee.objects.none()
-        for emp in emps:
-            if groupName(user=emp.user) == 'manager':
-                managers |= models.Employee.objects.filter(id=emp.id)
-        tasks_ids = managers.values_list('my_tasks', flat=True)
-        for task_id in tasks_ids:
-            tasks |= models.Task.objects.filter(id=task_id)
-    elif groupName(request=request) == 'director':
+
+    if groupName(request) == 'Manager':
+        tasks = models.Task.objects.filter(task_giver__section=request.user.employee.section)
+    elif groupName(request) == 'Director':
         tasks = models.Task.objects.all()
 
     tasks_count = tasks.count()
@@ -501,12 +462,14 @@ def tasksView(request):
     tasks_processing_count = tasks.filter(status='processing').count()
     tasks_new_count = tasks_count - tasks_done_count - tasks_processing_count
 
-    progresses = []
+    # filtering tasks
     task_filter = TaskFilter(request.GET, queryset=tasks)
     tasks = task_filter.qs
+
+    progresses = []
     for task in tasks:
         max = (task.deadline - task.date_given).total_seconds()
-        val = (abs(dt.datetime.today() - task.date_given)).seconds
+        val = (dt.datetime.today() - task.date_given).seconds
         percentage = (val / max) * 100
         deadline_color = ''
         if percentage >= 100:
@@ -522,62 +485,65 @@ def tasksView(request):
         'tasks_new_count': tasks_new_count,
         'tasks_done_count': tasks_done_count,
         'tasks_processing_count': tasks_processing_count,
-        'tasks_active': tasks_active,
-        'position': position,
-        'section': section,
-        'my_section': section,
-        'sections': sections,
+
         'filter': task_filter,
+
+        # navbar properties
+        'tasks_active': 'active',
+        'sections': sections,
     }
     return render(request, 'hrm/tasks.html', context)
 
 
 @authenticated_required
-@allowed_users(['director', 'managers'])
+@allowed_users(['Director', 'Managers'])
 def statisticsView(request):
     return render(request, 'hrm/statistics.html')
 
 
 @authenticated_required
-@allowed_users(['director'])
+@allowed_users(['Director'])
 def changePosition(request):
     if request.method == 'POST':
-        _employee = models.Employee.objects.get(id=request.POST.get('employee_id')).user
-        group = Group.objects.get(name=groupName(user=_employee))
-        group_employee = Group.objects.get(name='employee')
-        group_manager = Group.objects.get(name='manager')
-        if group.name == 'manager':
-            group.user_set.remove(_employee)
-            _employee.groups.add(group_employee)
-        if group.name == 'employee':
-            group.user_set.remove(_employee)
-            _employee.groups.add(group_manager)
-        return redirect(request.POST.get('next'))
+        try:
+            employee = models.Employee.objects.get(id=request.POST.get('employee_id'))
+        except Exception:
+            try:
+                return redirect(request.POST.get('next'))
+            except Exception:
+                return redirect('/')
+
+        if employee.position.name == 'Manager':
+            employee.position = models.Position.objects.get(name='Employee')
+            employee.save()
+        elif employee.position.name == 'Employee':
+            employee.position = models.Position.objects.get(name='Manager')
+            employee.save()
+
+        try:
+            return redirect(request.POST.get('next'))
+        except Exception:
+            return redirect('/')
 
 
 @authenticated_required
-@allowed_users(['director'])
+@allowed_users(['Director'])
 def addSectionView(request):
     if request.method == 'POST':
-        models.Section.objects.create(name=request.POST.get("section_name"))
-        return redirect(request.POST.get("next"))
+        if len(request.POST.get('section_name')) > 0:
+            models.Section.objects.create(name=request.POST.get("section_name"))
+            return redirect(request.POST.get("next"))
+        else:
+            return redirect('/')
 
 
 @authenticated_required
-@allowed_users(['manager'])
+@allowed_users(['Manager'])
 def mySectionView(request):
-    employee = request.user.employee
-    my_section = employee.section
+    employees_in_section = request.user.employee.section.employees_by_section.all()
 
-    emps = request.user.employee.section.employee_set.all()
-    managers = models.Employee.objects.none()
-    employees = models.Employee.objects.none()
-    for emp in emps:
-        if groupName(user=emp.user) == 'manager':
-            managers |= models.Employee.objects.filter(id=emp.id)
-    for emp in emps:
-        if groupName(user=emp.user) == 'employee':
-            employees |= models.Employee.objects.filter(id=emp.id)
+    employees = employees_in_section.filter(position__name='Employee')
+    managers = employees_in_section.filter(position__name='Manager')
 
     if request.method == 'GET':
         if 'search_employee' in request.GET:
@@ -586,44 +552,98 @@ def mySectionView(request):
         elif 'search_manager' in request.GET:
             m_filter = EmployeeFilter(request.GET, queryset=managers)
             managers = m_filter.qs
-    context = {'employees': employees, 'managers': managers, 'position': 'manager', 'my_section': my_section, 'sections_display': 'none', 'section_active': 'active'}
 
+    context = {
+        'employees': employees,
+        'managers': managers,
+
+        # navbar properties
+        'section_active': 'active'
+    }
     return render(request, 'hrm/my_section.html', context=context)
 
 
 @authenticated_required
 def editProfileView(request):
-    # navbar properties
-    sections_display = 'none'
-    my_section = ''
-    position = groupName(request)
     context = {}
-    if groupName(request) == 'manager':
-        my_section = request.user.employee.section.name
     if request.method == 'POST':
         r_post = fullNameParser(request)
         if r_post:
-            user = request.user
-            user.username = r_post.get("username")
-            user.save()
+            try:
+                user = request.user
+                user.username = r_post.get("username")
+                user.save()
 
-            employee = request.user.employee
-            employee.first_name = r_post.get("first_name")
-            employee.last_name = r_post.get("last_name")
-            employee.email = r_post.get("email")
-            employee.phone = r_post.get("phone")
-            employee.about = r_post.get("about")
-            address = models.Address.objects.create(
-                street=r_post.get("street"),
-                state=r_post.get("state"),
-                city=r_post.get("city"),
-                zip_code=int(r_post.get("zip_code")),
-                country=r_post.get("country")
-            )
-            employee.address = address
-            employee.save()
+                employee = request.user.employee
+                employee.first_name = r_post.get("first_name")
+                employee.last_name = r_post.get("last_name")
+                employee.email = r_post.get("email")
+                employee.phone = r_post.get("phone")
+                employee.about = r_post.get("about")
+                address = models.Address.objects.create(
+                    street=r_post.get("street"),
+                    state=r_post.get("state"),
+                    city=r_post.get("city"),
+                    zip_code=int(r_post.get("zip_code")),
+                    country=r_post.get("country")
+                )
+                employee.address = address
+                employee.save()
+            except Exception:
+                pass
         else:
             context['error'] = 'wrong full name'
+
     employee = request.user.employee
-    context = {'employee': employee, 'position': position, 'my_section': my_section}
+    context = {
+        'employee': employee
+    }
     return render(request, 'hrm/edit_profile.html', context)
+
+
+@authenticated_required
+def searchView(request):
+    # navbar properties
+    position = groupName(request)
+    my_section = ''
+    sections = models.Section.objects.all()
+    if position == 'manager':
+        my_section = request.user.employee.section
+
+    if request.method == 'GET':
+        question = request.GET.get("question")
+
+        # task search
+        tasks_by_name = models.Task.objects.filter(name=question)
+        tasks_by_context = models.Task.objects.filter(context=question)
+        tasks_by_note = models.Task.objects.filter(note=question)
+
+        # employee search
+        employees_by_first_name = models.Employee.objects.filter(first_name=question)
+        employees_by_last_name = models.Employee.objects.filter(last_name=question)
+        employees_by_username = models.Employee.objects.filter(username=question)
+        employees_by_email = models.Employee.objects.filter(email=question)
+        employees_by_about = models.Employee.objects.filter(about=question)
+
+        context = {
+            # tasks results
+            'tasks_by_name': tasks_by_name,
+            'tasks_by_context': tasks_by_context,
+            'tasks_by_note': tasks_by_note,
+
+            # employee results
+            'employees_by_first_name': employees_by_first_name,
+            'employees_by_last_name': employees_by_last_name,
+            'employees_by_username': employees_by_username,
+            'employees_by_email': employees_by_email,
+            'employees_by_about': employees_by_about,
+
+            # navbar properties
+            'position': position,
+            'my_section': my_section,
+            'sections': sections
+        }
+
+        return render(request, 'hrm/search.html', context)
+    else:
+        return HttpResponse("<h1>404 not found</h1>")

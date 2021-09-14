@@ -5,12 +5,13 @@
     <div class="col-md w-25">
         <div class="card p-5">
             <h3>View task</h3>
+            <p><i>task from <a href="{% url 'employee_profile' task.task_giver.id %}">{{task.task_giver}}</a></i></p>
             <hr>
             <div class="row">
                 <div class="col">
                     <div class="form-group">
                         <label>Assigned to</label>
-                        <input type="text" value="{{assigned_to}}" class="form-control w-50" disabled>
+                        <input type="text" value="{{task.assigned_to}}" class="form-control w-50" disabled>
                   </div>
                 </div>
                 <div class="col">

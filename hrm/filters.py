@@ -71,3 +71,4 @@ class TaskFilter(FilterSet):
     class Meta:
         model = Task
         fields = ['name', 'date_given', 'deadline', 'status', 'note']
+

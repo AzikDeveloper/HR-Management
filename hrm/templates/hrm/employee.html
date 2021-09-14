@@ -23,10 +23,10 @@
                     <h4>{{ employee.first_name }} {{employee.last_name}}</h4>
                     <h6>@{{ employee }}</h6>
                     <p class="mb-0">section: {{employee.section}}</p>
-                    {% if position == 'manager' %}
-                        <div style="color: green;" class="mt-0 mb-0">[{{position}}]</div>
+                    {% if request.user.employee.position.name == 'Manager' %}
+                        <div style="color: green;" class="mt-0 mb-0">[Manager]</div>
                     {% else %}
-                        <div style="color: blue;">[{{position}}]</div>
+                        <div style="color: blue;">[Employee]</div>
                     {% endif %}
                     <hr>
                     <a class="btn btn-outline-info  btn-sm btn-block" href="{% url 'edit_profile' %}?next={{request.path}}">Edit Profile</a>

@@ -24,12 +24,12 @@
                     <h6>@{{employee.username}}</h6>
 
                     <p class="mb-0">section: {{employee.section}}</p>
-                    {% if position == 'manager' %}
-                        <div style="color: green;" class="mt-0 mb-0">[{{employee_position}}]</div>
+                    {% if employee.position.name == 'Manager' %}
+                        <div style="color: green;" class="mt-0 mb-0">[Manager]</div>
                     {% else %}
-                        <div style="color: blue;">[{{employee_position}}]</div>
+                        <div style="color: blue;">[Employee]</div>
                     {% endif %}
-                    {% if position == 'director' %}
+                    {% if request.user.employee.position.name == 'Director' %}
                         <form method="POST" action="{% url 'change_position' %}">
                             {% csrf_token %}
                             <input type="hidden" name="employee_id" value="{{employee.id}}">
@@ -124,11 +124,11 @@
                       <div class="modal-body">
                             <input type="hidden" name="employee_id" value="{{employee.id}}">
                             <input type="hidden" name="next" value="{{request.path}}">
-                            <input type="text" autocomplete="off" name="message" class="form-control">
+                            <input type="text" autocomplete="off" name="message" class="form-control" required>
                       </div>
                       <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                            <button type="submit" class="btn btn-primary">Send</button>
+                            <button type="submit" value="submit" class="btn btn-primary">Send</button>
                       </div>
                 </form>
             </div>
