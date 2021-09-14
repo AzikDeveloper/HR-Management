@@ -9,6 +9,7 @@ from django.contrib.auth.models import Group
 import datetime as dt
 from .filters import EmployeeFilter, TaskFilter
 import re
+import math
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
@@ -505,7 +506,7 @@ def tasksView(request):
     tasks = task_filter.qs
     for task in tasks:
         max = (task.deadline - task.date_given).total_seconds()
-        val = (dt.datetime.today() - task.date_given).seconds
+        val = (abs(dt.datetime.today() - task.date_given)).seconds
         percentage = (val / max) * 100
         deadline_color = ''
         if percentage >= 100:
