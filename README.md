@@ -20,3 +20,13 @@ Director can give tasks to managers and employees.
 Managers can only give tasks to employees.
 Only task authors can change task informations. Even Director can't modify a task if he is not the giver of the task.
 
+### Director, Managers, Employee rights
+Director can access to Django's default administration panel and control over the whole database.
+Managers can only see the tasks whose task givers are in the section that is the same section of himself.
+Employees can see the tasks that are assigned to them. Employees can change the status of a task and write a note in the task.
+
+### Registering employees
+In a section Director or Managers can add employees by just their emails.
+Director can set an employee as a manager while adding.
+When a new employee is added, an unique link will be generated and send to the email.
+Email owner can click on the link and complete their registration by adding username, full name and password.
