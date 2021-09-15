@@ -53,7 +53,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'AddBotUz.urls'
+ROOT_URLCONF = 'hrm_project.urls'
 
 TEMPLATES = [
     {
@@ -71,7 +71,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'AddBotUz.wsgi.application'
+WSGI_APPLICATION = 'hrm_project.wsgi.application'
 
 
 # Database
