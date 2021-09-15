@@ -1,6 +1,6 @@
 # Hr management app.
 ### Description:
-This app lets you to control your employees in your company by giving tasks.
+This app lets you control your employees in your company by giving tasks.
 
 ### Positions in the app
 There are 3 types of positions in this app: director, manager, employee.
