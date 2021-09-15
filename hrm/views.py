@@ -23,6 +23,14 @@ def apiTestView(request):
     return Response(response)
 
 
+def firstError(errors):
+    errors = errors.as_text().split('\n')
+    if len(errors) >= 2:
+        return str(errors[1])[3:]
+    else:
+        return None
+
+
 def groupName(request=None, user=None):
     if user is None:
         return request.user.employee.position.name
@@ -61,12 +69,18 @@ def registerView(request, pk):
         genLink = models.GenLink.objects.filter(link=uuid.UUID(pk))
         if genLink:
             if request.method == 'POST':
-                if '@' in request.POST.get('username'):
-                    context = {'error': '@ is not allowed in username'}
-                    return render(request, 'hrm/register.html', context)
-                else:
-                    request_post = fullNameParser(request)
-                    if request_post:
+                request_post = fullNameParser(request)
+                if request_post:
+                    if '@' in request.POST.get('username'):
+                        context = {
+                            'error': '@ is not allowed in username',
+                            'full_name': request.POST.get('full_name'),
+                            'username': request.POST.get('username'),
+                            'password1': request.POST.get('password1'),
+                            'password2': request.POST.get('password2')
+                        }
+                        return render(request, 'hrm/register.html', context)
+                    else:
                         form = CreateUserForm(request_post)
                         if form.is_valid():
                             employee = genLink[0].employee
@@ -80,10 +94,23 @@ def registerView(request, pk):
                             genLink.delete()
                             return redirect('login')
                         else:
-                            context = {'error': 'invalid form!'}
+                            context = {
+                                'error': firstError(form.errors),
+                                'full_name': request.POST.get('full_name'),
+                                'username': request.POST.get('username'),
+                                'password1': request.POST.get('password1'),
+                                'password2': request.POST.get('password2')
+                            }
                             return render(request, 'hrm/register.html', context)
-                    else:
-                        return render(request, 'hrm/register.html', context={'error': 'Wrong full name!'})
+                else:
+                    context = {
+                        'error': 'Wrong full name!',
+                        'full_name': request.POST.get('full_name'),
+                        'username': request.POST.get('username'),
+                        'password1': request.POST.get('password1'),
+                        'password2': request.POST.get('password2')
+                    }
+                    return render(request, 'hrm/register.html', context)
             return render(request, 'hrm/register.html')
         else:
             return HttpResponse("<h1>404 not found")
@@ -143,11 +170,11 @@ def addEmployeeView(request):
         user = models.User.objects.create_user(username=email, email=email)
         if groupName(request) == 'Director':
             if request.POST.get("as_manager") == "true":
-                position = models.Position.objects.get(name='manager')
+                position = models.Position.objects.get(name='Manager')
             else:
-                position = models.Position.objects.get(name='employee')
+                position = models.Position.objects.get(name='Employee')
         else:
-            position = models.Position.objects.get(name='employee')
+            position = models.Position.objects.get(name='Employee')
         user.save()
 
         employee = user.employee
@@ -257,7 +284,7 @@ def createTaskView(request, pk):
     try:
         user = models.Employee.objects.get(id=pk)
     except Exception:
-        return HttpResponse("<h3>404 not found</h3>")
+        return HttpResponse("<h3>404 employee not found</h3>")
 
     form = CreateTaskForm(initial={'assigned_to': user, 'status': 'new'})
 

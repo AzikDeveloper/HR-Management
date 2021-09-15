@@ -4,7 +4,7 @@ from . import models
 import smtplib
 
 
-def sendEmail(email, message):
+def sendEmail(email, link):
     EMAIL_ADDRESS = 'azikdevapps@gmail.com'
     EMAIL_PASSWORD = 'czrdtzwexajkzvot'
 
@@ -13,8 +13,12 @@ def sendEmail(email, message):
         smtp.starttls()
         smtp.ehlo()
         smtp.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
-        subject = 'hi'
-        body = message
+        subject = 'hi dear new employee!'
+        body = f"""
+        Please fill out this form to register in our website:
+        {link}
+        Note that this link will be expired in 3 days!
+        """
         msg = f'Subject: {subject}\n\n{body}'
         smtp.sendmail(EMAIL_ADDRESS, email, msg)
 
@@ -25,10 +29,10 @@ def when_user_created(sender, instance, created, **kwargs):
             user=instance, email=instance.email,
             username=instance.username
         )
-        link = models.GenLink.objects.create(employee=employee)
-        print('http://127.0.0.1:8000/register/'+str(link.link))
-        message = f'http://127.0.0.1:8000/register/{link.link}'
-        sendEmail(instance.email, message)
+        gen_link = models.GenLink.objects.create(employee=employee)
+        print('http://127.0.0.1:8000/register/'+str(gen_link.link))
+        link = f'http://127.0.0.1:8000/register/{gen_link.link}'
+        sendEmail(instance.email, link)
 
 
 post_save.connect(when_user_created, sender=User)

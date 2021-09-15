@@ -1,123 +1,57 @@
-<!--{% load static %}-->
-
-<!--<link rel="stylesheet" type="text/css" href = "{% static 'hrm/css/register.css' %}">-->
-
-<!--<style>-->
-<!--    .alert{-->
-<!--    color: red;-->
-<!--    }-->
-<!--</style>-->
-<!--<div class="card">-->
-<!--      <div class="card-body">-->
-<!--          <form method="POST" action="">-->
-<!--          {% csrf_token %}-->
-<!--          <div class="container">-->
-<!--                <h1>Register</h1>-->
-<!--                <hr>-->
-<!--                Username-->
-<!--                <input type="text" name="username" maxlength="150" id="id_username">-->
-<!--                <div class="alert">{{username_error}}</div>-->
-<!--                First name-->
-<!--                <input type="text" name="first_name" maxlength="150" id="id_first_name">-->
-<!--                <div class="alert">{{first_name_error}}</div>-->
-<!--                Last name-->
-<!--                <input type="text" name="last_name" maxlength="150" id="id_last_name">-->
-<!--                <div class="alert">{{last_name_error}}</div>-->
-<!--                Password-->
-<!--                <input type="password" name="password1" autocomplete="new-password" required="" id="id_password1">-->
-<!--                <div class="alert">{{password_error}}</div>-->
-<!--                Password confirmation-->
-<!--                <input type="password" name="password2" autocomplete="new-password" required="" id="id_password2">-->
-<!--                <div class="alert">{{password_conf_error}}</div>-->
-<!--                <hr>-->
-<!--                <p>By creating an account you agree to our <a href="#">Terms & Privacy</a>.</p>-->
-<!--                <button type="submit" class="registerbtn">Register</button>-->
-<!--          </div>-->
-
-<!--          <div class="container login">-->
-<!--            <p>Already have an account? <a href="{% url 'login' %}">Log in</a>.</p>-->
-<!--          </div>-->
-
-<!--      </form>-->
-<!--</div>-->
-
-
-
-
-
-<!--</div>-->
-<link href="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
-<script src="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
-<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-<!------ Include the above in your HEAD tag ---------->
-
-<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.8/css/all.css">
-
-
-<div class="container">
-<br>  <p class="text-center">More bootstrap 4 components on <a href="http://bootstrap-ecommerce.com/"> Bootstrap-ecommerce.com</a></p>
-<hr>
-
-
-
-
-
-<div class="card bg-light">
-<article class="card-body mx-auto" style="max-width: 400px;">
-	<h4 class="card-title mt-3 text-center">Create Account</h4>
-	<p class="text-center">Get started with your free account</p>
-	<p>
-		<a href="" class="btn btn-block btn-twitter"> <i class="fab fa-twitter"></i>   Login via Twitter</a>
-		<a href="" class="btn btn-block btn-facebook"> <i class="fab fa-facebook-f"></i>   Login via facebook</a>
-	</p>
-	<p class="divider-text">
-        <span class="bg-light">OR</span>
-    </p>
-	<form action="" method="POST">
-		{% csrf_token %}
-	<div class="form-group input-group">
-		<div class="input-group-prepend">
-		    <span class="input-group-text"> <i class="fa fa-user"></i> </span>
-		 </div>
-        <input name="full_name" class="form-control" placeholder="Full name" type="text" autocomplete="false">
-    </div> <!-- form-group// -->
-    <div class="form-group input-group">
-    	<div class="input-group-prepend">
-		    <span class="input-group-text"> <i class="fa fa-envelope"></i> </span>
-		 </div>
-        <input name="username" class="form-control" placeholder="Username" type="text" autocomplete="false">
-    </div> <!-- form-group end.// -->
-    <div class="form-group input-group">
-    	<div class="input-group-prepend">
-		    <span class="input-group-text"> <i class="fa fa-lock"></i> </span>
+<!DOCTYPE html>
+<html>
+	<head>
+		<link href="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+		<script src="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+		<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+		<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.8/css/all.css">
+		<title>
+			Registration
+		</title>
+	<head/>
+	<body>
+		<div class="container">
+		<br><br>
+		<div class="card bg-light">
+			<article class="card-body mx-auto" style="max-width: 400px;">
+				<h4 class="card-title mt-3 text-center">Create Account</h4>
+				<br><br>
+				<form action="" method="POST">
+					{% csrf_token %}
+					<div class="form-group input-group">
+						<div class="input-group-prepend">
+							<span class="input-group-text"> <i class="fa fa-user"></i> </span>
+						 </div>
+						<input name="full_name" value="{{full_name}}" class="form-control" placeholder="Full name" type="text" autocomplete="false" required>
+					</div>
+					<div class="form-group input-group">
+						<div class="input-group-prepend">
+							<span class="input-group-text"> <i class="fa fa-envelope"></i> </span>
+						 </div>
+						<input name="username" value="{{username}}" class="form-control" placeholder="Username" type="text" autocomplete="false" required>
+					</div>
+					<div class="form-group input-group">
+						<div class="input-group-prepend">
+							<span class="input-group-text"> <i class="fa fa-lock"></i> </span>
+						</div>
+						<input name="password1" value="{{password1}}" class="form-control" placeholder="Create password" type="password" autocomplete="new-password" required>
+					</div>
+					<div class="form-group input-group">
+						<div class="input-group-prepend">
+							<span class="input-group-text"> <i class="fa fa-lock"></i> </span>
+						</div>
+						<input name="password2" value="{{password2}}" class="form-control" placeholder="Repeat password" type="password" autocomplete="false" required>
+					</div>
+					<div class="form-group">
+						<button type="submit" class="btn btn-primary btn-block"> Create Account  </button>
+					</div>
+					{% if error %}
+						<div class="alert alert-danger">{{error}}</div>
+					{% endif %}
+				</form>
+			</article>
+			</div>
 		</div>
-        <input name="password1" class="form-control" placeholder="Create password" type="password" autocomplete="new-password">
-    </div> <!-- form-group// -->
-    <div class="form-group input-group">
-    	<div class="input-group-prepend">
-		    <span class="input-group-text"> <i class="fa fa-lock"></i> </span>
-		</div>
-        <input name="password2" class="form-control" placeholder="Repeat password" type="password" autocomplete="false">
-    </div> <!-- form-group// -->
-    <div class="form-group">
-        <button type="submit" class="btn btn-primary btn-block"> Create Account  </button>
-    </div> <!-- form-group// -->
-<div class="alert alert-danger">{{error}}</div>
-</form>
-</article>
-</div> <!-- card.// -->
-
-</div>
-<!--container end.//-->
-
-<br><br>
-<article class="bg-secondary mb-3">
-<div class="card-body text-center">
-    <h3 class="text-white mt-3">Bootstrap 4 UI KIT</h3>
-<p class="h5 text-white">Components and templates  <br> for Ecommerce, marketplace, booking websites
-and product landing pages</p>   <br>
-<p><a class="btn btn-warning" target="_blank" href="http://bootstrap-ecommerce.com/"> Bootstrap-ecommerce.com
- <i class="fa fa-window-restore "></i></a></p>
-</div>
-<br><br>
-</article>
+	</body>
+	<br><br>
+</html>
