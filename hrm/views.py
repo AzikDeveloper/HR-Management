@@ -1,7 +1,7 @@
 # django stuff
 from django.shortcuts import render, redirect, HttpResponse
 from django.contrib.auth import authenticate, login, logout
-
+from django.core.exceptions import *
 # my tools
 from .decorators import redirect_if_authenticated, authenticated_required, allowed_users
 from .my_tools import fullNameParser, groupName, firstFormError
@@ -198,7 +198,7 @@ def employeeProfileView(request, pk):
 
     try:
         employee = Employee.objects.get(id=pk)
-    except Exception:
+    except ObjectDoesNotExist:
         return HttpResponse("<h3>404 not found!</h3>")
 
     if employee == request.user.employee:
@@ -251,7 +251,7 @@ def createTaskView(request, pk):
 
     try:
         user = Employee.objects.get(id=pk)
-    except Exception:
+    except ObjectDoesNotExist:
         return HttpResponse("<h3>404 employee not found</h3>")
 
     form = CreateTaskForm(initial={'assigned_to': user, 'status': 'new'})
@@ -262,10 +262,7 @@ def createTaskView(request, pk):
             task = form.save()
             task.task_giver = request.user.employee
             task.save()
-            try:
-                return redirect(request.GET.get("next"))
-            except Exception:
-                return redirect('/')
+            return redirect(request.GET.get('next'))
         else:
             pass
 
@@ -286,7 +283,7 @@ def editTaskView(request, pk):
 
     try:
         task = Task.objects.get(id=pk)
-    except Exception:
+    except ObjectDoesNotExist:
         return HttpResponse("<h3>404 not found</h3>")
 
     if request.user == task.task_giver.user:
@@ -303,18 +300,12 @@ def editTaskView(request, pk):
                     task.note = note
                     task.task_giver = task_giver
                     task.save()
-                    try:
-                        return redirect(request.GET.get('next'))
-                    except Exception:
-                        return redirect('/')
+                    return redirect(request.GET.get('next'))
                 else:
                     print(form.errors)
             if 'delete' in request.POST:
                 task.delete()
-                try:
-                    return redirect(request.GET.get('next'))
-                except Exception:
-                    return redirect('/')
+                return redirect(request.GET.get('next'))
 
         context = {
             'form': form,
@@ -334,14 +325,10 @@ def viewTaskView(request, pk):
     sections = Section.objects.all()
 
     if request.method == 'POST':
-        try:
-            return redirect(request.GET.get('next'))
-        except Exception:
-            return redirect('/')
-
+        return redirect(request.GET.get('next'))
     try:
         task = Task.objects.get(id=pk)
-    except Exception:
+    except ObjectDoesNotExist:
         return HttpResponse("<h3>404 not found</h3>")
 
     context = {
@@ -364,7 +351,7 @@ def logoutView(request):
 def taskInfoView(request, pk):
     try:
         task = Task.objects.get(id=pk)
-    except Exception:
+    except ObjectDoesNotExist:
         return HttpResponse('<h3>404 not found!</h3>')
 
     if task.assigned_to == request.user.employee:
@@ -397,7 +384,7 @@ def sendNotificationView(request):
     if request.method == "POST":
         try:
             employee = Employee.objects.get(id=request.POST.get("employee_id"))
-        except Exception:
+        except ObjectDoesNotExist:
             return HttpResponse("<h3>receiver not found!</h3>")
 
         if len(request.POST.get('message')) > 0:
@@ -413,7 +400,7 @@ def sectionView(request, pk):
     sections = Section.objects.all()
     try:
         section = Section.objects.get(id=pk)
-    except Exception:
+    except ObjectDoesNotExist:
         return HttpResponse("<h3>404 section not found!")
 
     employees_in_section = section.employees_by_section.all()
@@ -508,11 +495,8 @@ def changePosition(request):
     if request.method == 'POST':
         try:
             employee = Employee.objects.get(id=request.POST.get('employee_id'))
-        except Exception:
-            try:
-                return redirect(request.POST.get('next'))
-            except Exception:
-                return redirect('/')
+        except ObjectDoesNotExist:
+            return redirect(request.POST.get('next'))
 
         if employee.position.name == 'Manager':
             employee.position = Position.objects.get(name='Employee')
@@ -521,10 +505,7 @@ def changePosition(request):
             employee.position = Position.objects.get(name='Manager')
             employee.save()
 
-        try:
-            return redirect(request.POST.get('next'))
-        except Exception:
-            return redirect('/')
+        return redirect(request.POST.get('next'))
 
 
 @authenticated_required
