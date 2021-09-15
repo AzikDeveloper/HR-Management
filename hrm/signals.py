@@ -1,18 +1,18 @@
-from django.db.models.signals import post_save, post_delete
-from django.contrib.auth.models import User, Group
+from django.db.models.signals import post_save
+from django.contrib.auth.models import User
 from . import models
 import smtplib
 
 
 def sendEmail(email, link):
-    EMAIL_ADDRESS = 'azikdevapps@gmail.com'
-    EMAIL_PASSWORD = 'czrdtzwexajkzvot'
+    email_address = 'azikdevapps@gmail.com'
+    email_password = 'czrdtzwexajkzvot'
 
     with smtplib.SMTP('smtp.gmail.com', 587) as smtp:
         smtp.ehlo()
         smtp.starttls()
         smtp.ehlo()
-        smtp.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
+        smtp.login(email_address, email_password)
         subject = 'hi dear new employee!'
         body = f"""
         Please fill out this form to register in our website:
@@ -20,7 +20,7 @@ def sendEmail(email, link):
         Note that this link will be expired in 3 days!
         """
         msg = f'Subject: {subject}\n\n{body}'
-        smtp.sendmail(EMAIL_ADDRESS, email, msg)
+        smtp.sendmail(email_address, email, msg)
 
 
 def when_user_created(sender, instance, created, **kwargs):

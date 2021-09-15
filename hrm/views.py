@@ -1,15 +1,20 @@
+# django stuff
 from django.shortcuts import render, redirect, HttpResponse
 from django.contrib.auth import authenticate, login, logout
-from .decorators import redirect_if_authenticated
-from .decorators import authenticated_required, allowed_users
-import uuid
-from . import models
+
+# my tools
+from .decorators import redirect_if_authenticated, authenticated_required, allowed_users
+from .my_tools import fullNameParser, groupName, firstFormError
+from .models import *
+
+# filters and Forms
 from .forms import CreateTaskForm, CreateUserForm
-from django.contrib.auth.models import Group
-import datetime as dt
 from .filters import EmployeeFilter, TaskFilter
-import re
-import math
+
+# built in tools
+import datetime as dt
+
+# rest framework
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
@@ -23,41 +28,6 @@ def apiTestView(request):
     return Response(response)
 
 
-def firstError(errors):
-    errors = errors.as_text().split('\n')
-    if len(errors) >= 2:
-        return str(errors[1])[3:]
-    else:
-        return None
-
-
-def groupName(request=None, user=None):
-    if user is None:
-        return request.user.employee.position.name
-    else:
-        return user.employee.position.name
-
-
-def fullNameParser(request):
-    full_name = str(request.POST.get('full_name')).strip()
-    if full_name.count(' ') == 1:
-        if any(char.isdigit() for char in full_name):
-            return False
-        else:
-            pattern = re.compile("[A-Za-z]+")
-            first_name, last_name = full_name.split()
-            if pattern.fullmatch(first_name) and pattern.fullmatch(last_name):
-                rpost_copy = request.POST.copy()
-                rpost_copy['first_name'] = first_name
-                rpost_copy['last_name'] = last_name
-                rpost_copy.pop('full_name')
-                return rpost_copy
-            else:
-                return False
-    else:
-        return False
-
-
 @redirect_if_authenticated
 @authenticated_required
 def home(request):
@@ -66,8 +36,8 @@ def home(request):
 
 def registerView(request, pk):
     if len(pk) == 36:
-        genLink = models.GenLink.objects.filter(link=uuid.UUID(pk))
-        if genLink:
+        gen_link = GenLink.objects.filter(link=uuid.UUID(pk))
+        if gen_link:
             if request.method == 'POST':
                 request_post = fullNameParser(request)
                 if request_post:
@@ -83,7 +53,7 @@ def registerView(request, pk):
                     else:
                         form = CreateUserForm(request_post)
                         if form.is_valid():
-                            employee = genLink[0].employee
+                            employee = gen_link[0].employee
                             user = employee.user
                             user.username = request_post.get('username')
                             user.set_password(request_post.get('password1'))
@@ -91,11 +61,11 @@ def registerView(request, pk):
                             employee.last_name = request_post.get('last_name')
                             user.save()
                             employee.save()
-                            genLink.delete()
+                            gen_link.delete()
                             return redirect('login')
                         else:
                             context = {
-                                'error': firstError(form.errors),
+                                'error': firstFormError(form),
                                 'full_name': request.POST.get('full_name'),
                                 'username': request.POST.get('username'),
                                 'password1': request.POST.get('password1'),
@@ -138,10 +108,10 @@ def loginView(request):
 def console(request):
     # navbar properties
     home_active = 'active'
-    sections = models.Section.objects.all()
+    sections = Section.objects.all()
 
-    employees = models.Employee.objects.filter(position__name='Employee')
-    managers = models.Employee.objects.filter(position__name='Manager')
+    employees = Employee.objects.filter(position__name='Employee')
+    managers = Employee.objects.filter(position__name='Manager')
 
     if request.method == 'GET':
         if 'search_employee' in request.GET:
@@ -167,19 +137,19 @@ def console(request):
 def addEmployeeView(request):
     if request.method == "POST":
         email = request.POST.get("email")
-        user = models.User.objects.create_user(username=email, email=email)
+        user = User.objects.create_user(username=email, email=email)
         if groupName(request) == 'Director':
             if request.POST.get("as_manager") == "true":
-                position = models.Position.objects.get(name='Manager')
+                position = Position.objects.get(name='Manager')
             else:
-                position = models.Position.objects.get(name='Employee')
+                position = Position.objects.get(name='Employee')
         else:
-            position = models.Position.objects.get(name='Employee')
+            position = Position.objects.get(name='Employee')
         user.save()
 
         employee = user.employee
         employee.position = position
-        employee.section = models.Section.objects.get(id=request.POST.get("section_id"))
+        employee.section = Section.objects.get(id=request.POST.get("section_id"))
         employee.save()
 
         return redirect(request.POST.get("next"))
@@ -203,15 +173,20 @@ def employeeView(request):
 
     progresses = []
     for task in tasks:
-        max = (task.deadline - task.date_given).total_seconds()
-        val = (dt.datetime.today() - task.date_given).seconds
-        percentage = (val / max) * 100
+        max_seconds = (task.deadline - task.date_given).total_seconds()
+        delta_seconds = (dt.datetime.today() - task.date_given).seconds
+        percentage = (delta_seconds / max_seconds) * 100
         deadline_color = ''
         if percentage >= 100:
             deadline_color = 'red'
         status_color = {'new': '', 'processing': 'blue', 'done': 'green'}
-        progresses.append({'value': val, 'max': max, 'percentage': percentage, 'deadline_color': deadline_color,
-                           'status_color': status_color[task.status]})
+        progresses.append({
+            'value': delta_seconds,
+            'max': max_seconds,
+            'percentage': percentage,
+            'deadline_color': deadline_color,
+            'status_color': status_color[task.status]
+        })
     tasks = zip(tasks, progresses)
 
     context = {
@@ -232,10 +207,10 @@ def employeeView(request):
 @allowed_users(['Manager', 'Director'])
 def employeeProfileView(request, pk):
     # navbar properties
-    sections = models.Section.objects.all()
+    sections = Section.objects.all()
 
     try:
-        employee = models.Employee.objects.get(id=pk)
+        employee = Employee.objects.get(id=pk)
     except Exception:
         return HttpResponse("<h3>404 not found!</h3>")
 
@@ -248,20 +223,26 @@ def employeeProfileView(request, pk):
 
     progresses = []
     for task in tasks:
-        max = (task.deadline - task.date_given).total_seconds()
-        val = (dt.datetime.today() - task.date_given).seconds
-        percentage = (val/max)*100
+        max_seconds = (task.deadline - task.date_given).total_seconds()
+        delta_seconds = (dt.datetime.today() - task.date_given).seconds
+        percentage = (delta_seconds/max_seconds)*100
         deadline_color = ''
         if percentage >= 100:
             deadline_color = 'red'
         status_color = {'new': '', 'processing': 'blue', 'done': 'green'}
-        progresses.append({'value': val, 'max': max, 'percentage': percentage, 'deadline_color': deadline_color, 'status_color': status_color[task.status]})
+        progresses.append({
+            'value': delta_seconds,
+            'max': max_seconds,
+            'percentage': percentage,
+            'deadline_color': deadline_color,
+            'status_color': status_color[task.status]
+        })
 
     tasks = zip(tasks, progresses)
 
     if request.method == "POST":
         if request.POST.get("post_status") == "sendMessage":
-            models.Message.objects.create(sender=request.user, receiver=employee.user, text=request.POST.get('message'))
+            Notification.objects.create(sender=request.user, receiver=employee.user, text=request.POST.get('message'))
 
     context = {
         'employee': employee,
@@ -279,10 +260,10 @@ def employeeProfileView(request, pk):
 @allowed_users(['Director', 'Manager'])
 def createTaskView(request, pk):
     # navbar properties
-    sections = models.Section.objects.all()
+    sections = Section.objects.all()
 
     try:
-        user = models.Employee.objects.get(id=pk)
+        user = Employee.objects.get(id=pk)
     except Exception:
         return HttpResponse("<h3>404 employee not found</h3>")
 
@@ -296,7 +277,7 @@ def createTaskView(request, pk):
             task.save()
             try:
                 return redirect(request.GET.get("next"))
-            except:
+            except Exception:
                 return redirect('/')
         else:
             pass
@@ -314,10 +295,10 @@ def createTaskView(request, pk):
 @allowed_users(['Director', 'Manager'])
 def editTaskView(request, pk):
     # navbar properties
-    sections = models.Section.objects.all()
+    sections = Section.objects.all()
 
     try:
-        task = models.Task.objects.get(id=pk)
+        task = Task.objects.get(id=pk)
     except Exception:
         return HttpResponse("<h3>404 not found</h3>")
 
@@ -337,7 +318,7 @@ def editTaskView(request, pk):
                     task.save()
                     try:
                         return redirect(request.GET.get('next'))
-                    except:
+                    except Exception:
                         return redirect('/')
                 else:
                     print(form.errors)
@@ -345,7 +326,7 @@ def editTaskView(request, pk):
                 task.delete()
                 try:
                     return redirect(request.GET.get('next'))
-                except:
+                except Exception:
                     return redirect('/')
 
         context = {
@@ -363,16 +344,16 @@ def editTaskView(request, pk):
 @allowed_users(['Director', 'Manager'])
 def viewTaskView(request, pk):
     # navbar properties
-    sections = models.Section.objects.all()
+    sections = Section.objects.all()
 
     if request.method == 'POST':
         try:
             return redirect(request.GET.get('next'))
-        except:
+        except Exception:
             return redirect('/')
 
     try:
-        task = models.Task.objects.get(id=pk)
+        task = Task.objects.get(id=pk)
     except Exception:
         return HttpResponse("<h3>404 not found</h3>")
 
@@ -395,7 +376,7 @@ def logoutView(request):
 @allowed_users(['Manager', 'Employee'])
 def taskInfoView(request, pk):
     try:
-        task = models.Task.objects.get(id=pk)
+        task = Task.objects.get(id=pk)
     except Exception:
         return HttpResponse('<h3>404 not found!</h3>')
 
@@ -418,22 +399,22 @@ def taskInfoView(request, pk):
             'task': task,
             'select_options': select_options
         }
-        return render(request, 'hrm/taskinfo.html', context)
+        return render(request, 'hrm/task_info.html', context)
     else:
         return HttpResponse("<h3>you are not authorised to see this page</h1>")
 
 
 @authenticated_required
 @allowed_users(['Director', 'Manager'])
-def sendMessage(request):
+def sendNotificationView(request):
     if request.method == "POST":
         try:
-            employee = models.Employee.objects.get(id=request.POST.get("employee_id"))
+            employee = Employee.objects.get(id=request.POST.get("employee_id"))
         except Exception:
             return HttpResponse("<h3>receiver not found!</h3>")
 
         if len(request.POST.get('message')) > 0:
-            models.Message.objects.create(sender=request.user, receiver=employee.user, text=request.POST.get('message'))
+            Notification.objects.create(sender=request.user, receiver=employee.user, text=request.POST.get('message'))
 
         return redirect(request.POST.get("next"))
 
@@ -442,9 +423,9 @@ def sendMessage(request):
 @allowed_users(['Director'])
 def sectionView(request, pk):
     # navbar properties
-    sections = models.Section.objects.all()
+    sections = Section.objects.all()
     try:
-        section = models.Section.objects.get(id=pk)
+        section = Section.objects.get(id=pk)
     except Exception:
         return HttpResponse("<h3>404 section not found!")
 
@@ -477,12 +458,13 @@ def sectionView(request, pk):
 @allowed_users(['Director', 'Manager'])
 def tasksView(request):
     # navbar properties
-    sections = models.Section.objects.all()
+    sections = Section.objects.all()
+    tasks = None
 
     if groupName(request) == 'Manager':
-        tasks = models.Task.objects.filter(task_giver__section=request.user.employee.section)
+        tasks = Task.objects.filter(task_giver__section=request.user.employee.section)
     elif groupName(request) == 'Director':
-        tasks = models.Task.objects.all()
+        tasks = Task.objects.all()
 
     tasks_count = tasks.count()
     tasks_done_count = tasks.filter(status='done').count()
@@ -495,15 +477,20 @@ def tasksView(request):
 
     progresses = []
     for task in tasks:
-        max = (task.deadline - task.date_given).total_seconds()
-        val = (dt.datetime.today() - task.date_given).seconds
-        percentage = (val / max) * 100
+        max_seconds = (task.deadline - task.date_given).total_seconds()
+        delta_seconds = (dt.datetime.today() - task.date_given).seconds
+        percentage = (delta_seconds / max_seconds) * 100
         deadline_color = ''
         if percentage >= 100:
             deadline_color = 'red'
         status_color = {'new': '', 'processing': 'blue', 'done': 'green'}
-        progresses.append({'value': val, 'max': max, 'percentage': percentage, 'deadline_color': deadline_color,
-                           'status_color': status_color[task.status]})
+        progresses.append({
+            'value': delta_seconds,
+            'max': max_seconds,
+            'percentage': percentage,
+            'deadline_color': deadline_color,
+            'status_color': status_color[task.status]
+        })
     tasks = zip(tasks, progresses)
 
     context = {
@@ -533,7 +520,7 @@ def statisticsView(request):
 def changePosition(request):
     if request.method == 'POST':
         try:
-            employee = models.Employee.objects.get(id=request.POST.get('employee_id'))
+            employee = Employee.objects.get(id=request.POST.get('employee_id'))
         except Exception:
             try:
                 return redirect(request.POST.get('next'))
@@ -541,10 +528,10 @@ def changePosition(request):
                 return redirect('/')
 
         if employee.position.name == 'Manager':
-            employee.position = models.Position.objects.get(name='Employee')
+            employee.position = Position.objects.get(name='Employee')
             employee.save()
         elif employee.position.name == 'Employee':
-            employee.position = models.Position.objects.get(name='Manager')
+            employee.position = Position.objects.get(name='Manager')
             employee.save()
 
         try:
@@ -558,7 +545,7 @@ def changePosition(request):
 def addSectionView(request):
     if request.method == 'POST':
         if len(request.POST.get('section_name')) > 0:
-            models.Section.objects.create(name=request.POST.get("section_name"))
+            Section.objects.create(name=request.POST.get("section_name"))
             return redirect(request.POST.get("next"))
         else:
             return redirect('/')
@@ -607,7 +594,7 @@ def editProfileView(request):
                 employee.email = r_post.get("email")
                 employee.phone = r_post.get("phone")
                 employee.about = r_post.get("about")
-                address = models.Address.objects.create(
+                address = Address.objects.create(
                     street=r_post.get("street"),
                     state=r_post.get("state"),
                     city=r_post.get("city"),
@@ -633,7 +620,7 @@ def searchView(request):
     # navbar properties
     position = groupName(request)
     my_section = ''
-    sections = models.Section.objects.all()
+    sections = Section.objects.all()
     if position == 'manager':
         my_section = request.user.employee.section
 
@@ -641,16 +628,16 @@ def searchView(request):
         question = request.GET.get("question")
 
         # task search
-        tasks_by_name = models.Task.objects.filter(name=question)
-        tasks_by_context = models.Task.objects.filter(context=question)
-        tasks_by_note = models.Task.objects.filter(note=question)
+        tasks_by_name = Task.objects.filter(name=question)
+        tasks_by_context = Task.objects.filter(context=question)
+        tasks_by_note = Task.objects.filter(note=question)
 
         # employee search
-        employees_by_first_name = models.Employee.objects.filter(first_name=question)
-        employees_by_last_name = models.Employee.objects.filter(last_name=question)
-        employees_by_username = models.Employee.objects.filter(username=question)
-        employees_by_email = models.Employee.objects.filter(email=question)
-        employees_by_about = models.Employee.objects.filter(about=question)
+        employees_by_first_name = Employee.objects.filter(first_name=question)
+        employees_by_last_name = Employee.objects.filter(last_name=question)
+        employees_by_username = Employee.objects.filter(username=question)
+        employees_by_email = Employee.objects.filter(email=question)
+        employees_by_about = Employee.objects.filter(about=question)
 
         context = {
             # tasks results

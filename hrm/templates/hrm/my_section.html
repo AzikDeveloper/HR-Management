@@ -42,7 +42,7 @@
                         <thead class="thead-dark">
                             <tr>
                             <th>Username</th>
-                            <th style="text-align: center">Send Message</th>
+                            <th style="text-align: center">Send Notification</th>
                             <th>View</th>
                         </tr>
                         </thead>
@@ -101,10 +101,10 @@
 <div class="modal fade" id="sendMessage" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
       <div class="modal-dialog" role="document">
             <div class="modal-content">
-                <form action="{% url 'send_message' %}" method="POST">
+                <form action="{% url 'send_notification' %}" method="POST">
                       {% csrf_token %}
                       <div class="modal-header">
-                            <h5 class="modal-title" id="exampleModalLabel">Send Message</h5>
+                            <h5 class="modal-title" id="exampleModalLabel">Send Notification</h5>
                             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                               <span aria-hidden="true">&times;</span>
                             </button>

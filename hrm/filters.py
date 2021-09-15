@@ -20,7 +20,7 @@ class TaskFilter(FilterSet):
                 'class': 'form-control-sm w-50',
                 'autocomplete': 'off',
                 'spellcheck': "false"
-    }
+            }
         )
     )
     status = ChoiceFilter(
@@ -71,4 +71,3 @@ class TaskFilter(FilterSet):
     class Meta:
         model = Task
         fields = ['name', 'date_given', 'deadline', 'status', 'note']
-

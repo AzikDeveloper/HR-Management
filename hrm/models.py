@@ -66,8 +66,8 @@ class GenLink(models.Model):
     def __str__(self):
         try:
             return self.employee.user.username+'/'+str(self.link)
-        except:
-            return f'genlink-{self.id}'
+        except Exception:
+            return f'gen_link-{self.id}'
 
 
 class Task(models.Model):
@@ -90,11 +90,10 @@ class Task(models.Model):
         return self.name
 
 
-class Message(models.Model):
+class Notification(models.Model):
     sender = models.ForeignKey(User, on_delete=models.CASCADE, null=True, related_name='sent_messages')
     receiver = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='received_messages')
     text = models.CharField(max_length=200, null=True)
 
     def __str__(self):
         return f"{self.text} :{self.id}"
-

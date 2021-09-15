@@ -2,7 +2,6 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django import forms
 from .models import Task
-from django.forms import ModelForm
 
 
 class CreateUserForm(UserCreationForm):
@@ -52,8 +51,3 @@ class CreateTaskForm(forms.ModelForm):
                 }
             ),
         }
-
-
-
-
-

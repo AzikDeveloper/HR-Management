@@ -38,7 +38,7 @@
                         </form>
                     {% endif %}
                     <hr>
-                    <a data-toggle="modal" data-target="#sendMessage" class="btn btn-outline-info  btn-sm btn-block" href="#update">Send message</a>
+                    <a data-toggle="modal" data-target="#sendMessage" class="btn btn-outline-info  btn-sm btn-block" href="#update">Send Notification</a>
                     <a class="btn btn-outline-primary  btn-sm btn-block" href="{% url 'create_task' employee.id %}?next={{request.path}}">Add Task</a>
 
                 </div>
@@ -113,10 +113,10 @@
 <div class="modal fade" id="sendMessage" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
       <div class="modal-dialog" role="document">
             <div class="modal-content">
-                <form action="{% url 'send_message' %}" method="POST">
+                <form action="{% url 'send_notification' %}" method="POST">
                       {% csrf_token %}
                       <div class="modal-header">
-                            <h5 class="modal-title" id="exampleModalLabel">Send Message</h5>
+                            <h5 class="modal-title" id="exampleModalLabel">Send Notification</h5>
                             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                               <span aria-hidden="true">&times;</span>
                             </button>
