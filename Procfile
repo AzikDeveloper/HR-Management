@@ -1,1 +1,1 @@
-web: gunicorn AddBotUz.wsgi --log-file -
+web: gunicorn hrm_project.wsgi --log-file -
