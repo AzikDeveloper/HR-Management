@@ -4,7 +4,7 @@ This app lets you control your employees in your company by giving tasks.
 
 ### Positions in the app
 There are 3 types of positions in this app: director, manager, employee.
-Director can add employees and managers. Directors can change the position of managers and employees.
+Director can add employees and managers. Director can change the position of managers and employees.
 Managers can add employees but can't add managers.
 
 ### Sections
