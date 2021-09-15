@@ -10,13 +10,6 @@ class Position(models.Model):
         return self.name
 
 
-class Director(models.Model):
-    user = models.OneToOneField(User, on_delete=models.SET_NULL, null=True)
-
-    def __str__(self):
-        return self.user.username
-
-
 class Section(models.Model):
     name = models.CharField(max_length=200, null=True)
 

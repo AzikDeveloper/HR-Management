@@ -48,8 +48,16 @@
                         </thead>
                         {% for manager in managers %}
                             <tr>
-                                <td>{{manager}}</td>
-                                <td style="text-align: center"><a data-toggle="modal" id="{{manager.id}}" onclick="setID(this)" data-target="#sendMessage" class="btn btn-sm btn-outline-info">+</a> </td>
+                                {% if request.user.employee == manager %}
+                                <td style="color: green;"><b>{{manager}}</b></td>
+                                {% else %}
+                                     <td>{{manager}}</td>
+                                {% endif %}
+                                <td style="text-align: center">
+                                    {% if request.user.employee != manager %}
+                                        <a data-toggle="modal" id="{{manager.id}}" onclick="setID(this)" data-target="#sendMessage" class="btn btn-sm btn-outline-info">+</a>
+                                    {% endif %}
+                                </td>
                                 <td><a class="btn btn-outline-info btn-sm" href="{% url 'employee_profile' manager.id %}">View</a></td>
                             </tr>
                         {% endfor %}

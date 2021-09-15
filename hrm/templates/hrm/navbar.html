@@ -40,12 +40,10 @@
             {% endif %}
         </ul>
     </div>
-     <form action="{% url 'search' %}" method="GET" class="form-inline my-2 my-lg-0">
-         <input name="question" class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
-         <button class="btn btn-outline-light my-2 my-sm-0" type="submit">Search</button>
+     <div class="form-inline my-2 my-lg-0">
          <span style="color: #fff;">&nbsp &nbsp &nbsp{{request.user}}&nbsp</span>&nbsp;
          <span><a style="color: #fff;" href="{% url 'logout' %}">Log out</a> </span>
-    </form>
+     </div>
 
 </nav>
 {% if request.user.employee.position.name == 'Director' %}
@@ -71,7 +69,7 @@
                             <button type="Submit" class="btn btn-primary">Add</button>
                         </div>
                     </form>
-                    </div>
-              </div>
+                </div>
+          </div>
     </div>
 {% endif %}

@@ -1,7 +1,7 @@
 {% extends 'hrm/main.html' %}
 
 {% block content %}
-
+{% load static %}
 <div class="container">
 	<form action="" method="post">
 		<div class="row gutters">
@@ -12,7 +12,7 @@
 						<div class="account-settings">
 							<div class="user-profile">
 								<div class="user-avatar">
-									<img src="https://bootdey.com/img/Content/avatar/avatar7.png" alt="Maxwell Admin">
+									<img src="{% static 'hrm/images/avatar.png' %}" alt="image here">
 								</div>
 								<h6 class="user-name">{{employee.first_name}}&nbsp{{employee.last_name}}</h6>
 								<h6 class="user-email">{{employee.username}}</h6>

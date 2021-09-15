@@ -1,4 +1,71 @@
 {% extends 'hrm/main.html' %}
+
 {% block content %}
-salom search
+
+{% for result in results %}
+
+    <!-- TASK SEARCH -->
+        {% if result.match_type == 'task_name' %}
+            <!--task name match -->
+            <div class="card m-1">
+                <div class="card-header"><h4>{{result.content.name}}</h4></div>
+                <div class="card-body">
+                        <div class="form-group">
+                            <label>Task giver: {{result.content.task_giver}}</label>
+                            <br>
+                            <label>Assigned to: {{result.content.assigned_to}}</label>
+                            <br>
+                            <div class="card card-body">
+                                <span>{{result.content.context}}</span>
+                            </div>
+                        </div>
+                </div>
+            </div>
+        {% endif %}
+        {% if result.match_type == 'task_context' %}
+            <!--task context match -->
+        {% endif %}
+        {% if result.match_type == 'task_note' %}
+            <!--task note match -->
+        {% endif %}
+    <!-- TASK SEARCH END -->
+
+    <!-- EMPLOYEE SEARCH -->
+        {% if result.match_type == 'employee_username' %}
+            <!--employee username match -->
+        {% endif %}
+        {% if result.match_type == 'employee_first_name' %}
+            <!--employee first_name match -->
+        {% endif %}
+        {% if result.match_type == 'employee_last_name' %}
+            <!--employee last_name match -->
+        {% endif %}
+        {% if result.match_type == 'employee_email' %}
+            <!--employee email match -->
+        {% endif %}
+        {% if result.match_type == 'employee_phone' %}
+            <!--employee phone match -->
+        {% endif %}
+        {% if result.match_type == 'employee_about' %}
+            <!--employee about match -->
+        {% endif %}
+    <!-- EMPLOYEE SEARCH END-->
+
+    <!-- ADDRESS SEARCH -->
+        {% if result.match_type == 'address_street' %}
+            <!--address street match -->
+        {% endif %}
+        {% if result.match_type == 'address_state' %}
+            <!--address state match -->
+        {% endif %}
+        {% if result.match_type == 'address_city' %}
+            <!--address city match -->
+        {% endif %}
+        {% if result.match_type == 'address_country' %}
+            <!--address street match -->
+        {% endif %}
+    <!-- ADDRESS SEARCH END -->
+{% endfor %}
+
+<br><br>
 {% endblock %}

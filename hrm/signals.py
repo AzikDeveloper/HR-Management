@@ -32,7 +32,7 @@ def when_user_created(sender, instance, created, **kwargs):
         gen_link = models.GenLink.objects.create(employee=employee)
         print('http://127.0.0.1:8000/register/'+str(gen_link.link))
         link = f'http://127.0.0.1:8000/register/{gen_link.link}'
-        sendEmail(instance.email, link)
+        #sendEmail(instance.email, link)
 
 
 post_save.connect(when_user_created, sender=User)
