@@ -14,19 +14,6 @@ from .filters import EmployeeFilter, TaskFilter
 # built in tools
 import datetime as dt
 
-# rest framework
-from rest_framework.decorators import api_view
-from rest_framework.response import Response
-
-
-@api_view(['GET'])
-def apiTestView(request):
-    if request.user.is_authenticated:
-        response = 'AUTHED'
-    else:
-        response = 'NOT AUTHED'
-    return Response(response)
-
 
 @redirect_if_authenticated
 @authenticated_required

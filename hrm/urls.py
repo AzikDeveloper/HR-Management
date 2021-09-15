@@ -19,7 +19,6 @@ urlpatterns = [
     path('change_position', views.changePosition, name='change_position'),
     path('add_section', views.addSectionView, name='add_section'),
     path('my_section', views.mySectionView, name='my_section'),
-    path('api-test', views.apiTestView, name='api_test'),
     path('view-task/<str:pk>', views.viewTaskView, name='view_task'),
     path('edit-profile/', views.editProfileView, name='edit_profile')
 ]
