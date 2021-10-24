@@ -2,6 +2,7 @@ from django.db.models.signals import post_save
 from django.contrib.auth.models import User
 from . import models
 import smtplib
+from django.core.mail import send_mail
 
 
 def sendEmail(email, link):
@@ -24,6 +25,7 @@ def sendEmail(email, link):
 
 
 def when_user_created(sender, instance, created, **kwargs):
+    send_mail = True
     if created:
         employee = models.Employee.objects.create(
             user=instance, email=instance.email,
@@ -32,7 +34,13 @@ def when_user_created(sender, instance, created, **kwargs):
         gen_link = models.GenLink.objects.create(employee=employee)
         print('http://127.0.0.1:8000/register/'+str(gen_link.link))
         link = f'http://127.0.0.1:8000/register/{gen_link.link}'
-        #sendEmail(instance.email, link)
+        if send_mail:
+            sendEmail(instance.email, link)
+            # try:
+            #
+            # except Exception:
+            #     instance.delete()
+            #     raise Exception()
 
 
 post_save.connect(when_user_created, sender=User)

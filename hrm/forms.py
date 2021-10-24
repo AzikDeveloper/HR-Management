@@ -25,7 +25,8 @@ class CreateTaskForm(forms.ModelForm):
         widgets = {
             'assigned_to': forms.Select(
                 attrs={
-                    'class': 'form-control w-50'
+                    'class': 'form-control w-50',
+                    'disabled': ''
                 }
             ),
             'name': forms.TextInput(

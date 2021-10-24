@@ -1,6 +1,7 @@
 # django stuff
 from django.shortcuts import render, redirect, HttpResponse
 from django.contrib.auth import authenticate, login, logout
+from django.contrib import messages
 from django.core.exceptions import *
 # my tools
 from .decorators import redirect_if_authenticated, authenticated_required, allowed_users
@@ -124,7 +125,11 @@ def console(request):
 def addEmployeeView(request):
     if request.method == "POST":
         email = request.POST.get("email")
-        user = User.objects.create_user(username=email, email=email)
+        try:
+            user = User.objects.create_user(username=email, email=email)
+        except Exception:
+            messages.error(request, 'Error while sending mail! Please enter valid email address')
+            return redirect(request.POST.get("next"))
         if groupName(request) == 'Director':
             if request.POST.get("as_manager") == "true":
                 position = Position.objects.get(name='Manager')
@@ -136,9 +141,11 @@ def addEmployeeView(request):
 
         employee = user.employee
         employee.position = position
-        employee.section = Section.objects.get(id=request.POST.get("section_id"))
+        if groupName(request) == 'Manager':
+            employee.section = request.user.employee.section
+        else:
+            employee.section = Section.objects.get(id=request.POST.get("section_id"))
         employee.save()
-
         return redirect(request.POST.get("next"))
     else:
         return HttpResponse('<h3>404 not found </h3>')
@@ -198,6 +205,8 @@ def employeeProfileView(request, pk):
 
     try:
         employee = Employee.objects.get(id=pk)
+        if not (employee.section == request.user.employee.section or groupName(request) == 'Director'):
+            return HttpResponse("<h3>You are not authorized to see this page</h3>")
     except ObjectDoesNotExist:
         return HttpResponse("<h3>404 not found!</h3>")
 
@@ -250,11 +259,13 @@ def createTaskView(request, pk):
     sections = Section.objects.all()
 
     try:
-        user = Employee.objects.get(id=pk)
+        employee = Employee.objects.get(id=pk)
+        if not((employee.section == request.user.employee.section and employee.position.name == 'Employee') or groupName(request) == 'Director'):
+            return HttpResponse('<h3>You are not authorized to see this page!')
     except ObjectDoesNotExist:
         return HttpResponse("<h3>404 employee not found</h3>")
 
-    form = CreateTaskForm(initial={'assigned_to': user, 'status': 'new'})
+    form = CreateTaskForm(initial={'assigned_to': employee, 'status': 'new'})
 
     if request.method == "POST":
         form = CreateTaskForm(request.POST)
@@ -264,6 +275,7 @@ def createTaskView(request, pk):
             task.save()
             return redirect(request.GET.get('next'))
         else:
+            print("invalid?")
             pass
 
     context = {
@@ -384,6 +396,11 @@ def sendNotificationView(request):
     if request.method == "POST":
         try:
             employee = Employee.objects.get(id=request.POST.get("employee_id"))
+            if groupName(request) == 'Manager':
+                if employee.section == request.user.employee.section:
+                    pass
+                else:
+                    return HttpResponse('<h3>You can\'t send notification to this employee')
         except ObjectDoesNotExist:
             return HttpResponse("<h3>receiver not found!</h3>")
 
@@ -562,14 +579,23 @@ def editProfileView(request):
                 employee.email = r_post.get("email")
                 employee.phone = r_post.get("phone")
                 employee.about = r_post.get("about")
-                address = Address.objects.create(
-                    street=r_post.get("street"),
-                    state=r_post.get("state"),
-                    city=r_post.get("city"),
-                    zip_code=int(r_post.get("zip_code")),
-                    country=r_post.get("country")
-                )
-                employee.address = address
+                if employee.address:
+                    address = employee.address
+                    address.street = r_post.get("street")
+                    address.state = r_post.get("state")
+                    address.city = r_post.get("city")
+                    address.zip_code = r_post.get("zip_code")
+                    address.country = r_post.get("country")
+                    address.save()
+                else:
+                    address = Address.objects.create(
+                        street=r_post.get("street"),
+                        state=r_post.get("state"),
+                        city=r_post.get("city"),
+                        zip_code=int(r_post.get("zip_code")),
+                        country=r_post.get("country")
+                    )
+                    employee.address = address
                 employee.save()
             except Exception:
                 pass

@@ -13,9 +13,19 @@
                             <label>Email address</label>
                             <input type="text" placeholder="example@email.com" name="email" class="form-control" required>
                             <br>
-                            <input type="hidden" name="section_id" value="{{my_section.id}}">
                             <input type="hidden" name="next" value="{{request.path}}">
-                            <input type="submit" class="btn btn-info mt-2" value="add" style="float:right;">
+                            <div class="row">
+                                {% for message in messages %}
+                                    <div class="col-md-8">
+                                        <div class="alert alert-danger">
+                                        <strong>{{message}}</strong>
+                                    </div>
+                                    </div>
+                                {% endfor %}
+                                <div class="col-md">
+                                    <input type="submit" class="btn btn-info mt-2" value="add" style="float:right;">
+                                </div>
+                            </div>
                         </div>
                     </form>
                 </div>

@@ -25,7 +25,7 @@ class Address(models.Model):
     country = models.CharField(max_length=200, null=True)
 
     def __str__(self):
-        return str(self.id)
+        return f"address({self.id})"
 
 
 class Employee(models.Model):
