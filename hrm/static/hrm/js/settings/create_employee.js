@@ -42,7 +42,7 @@ $('#id_create_employee_form').on('submit', (e) => {
         create_button.prop('disabled', false)
         loader.attr('class', 'd-none')
         console.log(res)
-        loader_text.html(`<span class="text-danger">${res['responseJSON']['detail']}</span>`)
+        loader_text.html(`<span class="text-danger">${res['responseJSON']['message']}</span>`)
         if (res['status'] === 401) {
             window.location.replace("http://127.0.0.1:8000/login");
         }

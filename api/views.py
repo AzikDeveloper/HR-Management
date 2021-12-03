@@ -14,7 +14,6 @@ from .tools import andQ
 
 @api_view(['GET'])
 @authenticated_required
-@allowed_users(['Director'])
 def getUserInfoView(request, user_id):
     user = User.objects.get(id=user_id)
     user = UserSerializer(user)
@@ -25,8 +24,13 @@ def getUserInfoView(request, user_id):
 @authenticated_required
 @allowed_users(['Director', 'Manager'])
 def createTaskView(request):
-    task_giver = request.user.id
-    request.data['task_giver'] = task_giver
+    assigned_to_user = User.objects.get(id=request.data['assigned_to'])
+    if request.session['position'] == 'Director' or assigned_to_user.info.section == request.user.info.section:
+        pass
+    else:
+        return Response(status=400)
+    request.data['task_giver'] = request.user.id
+
     task = TaskSerializer(data=request.data)
 
     if task.is_valid():
@@ -163,10 +167,31 @@ def getTasksView(request):
 
 @api_view(['GET'])
 @authenticated_required
+@allowed_users(['Director', 'Manager', 'Employee'])
 def getTaskData(request, task_id):
     task = Task.objects.get(id=task_id)
+    if request.session['position'] == 'Manager' and task.task_giver.info.section == request.user.info.section or \
+            request.session['position'] == 'Director':
+        pass
+    else:
+        return Response(data={
+            'ok': False,
+            'message': 'You are not authorized to access this data!'
+        }, status=401)
+
     serializer = TaskViewSerializer(task)
-    return Response(data=serializer.data)
+
+    can_edit = False
+    if request.session['position'] == 'Director':
+        can_edit = True
+    elif request.user == task.task_giver:
+        can_edit = True
+
+    data = {
+        'can_edit': can_edit,
+        'task': serializer.data
+    }
+    return Response(data=data)
 
 
 @api_view(['POST'])
@@ -185,10 +210,10 @@ def createEmployeeView(request):
     if form.is_created():
         return Response(data={
             'ok': True,
-            'detail': 'employee is created'
+            'message': 'employee is created'
         })
     else:
         return Response(data={
             'ok': False,
-            'detail': form.error_message
+            'message': form.error_message
         }, status=400)

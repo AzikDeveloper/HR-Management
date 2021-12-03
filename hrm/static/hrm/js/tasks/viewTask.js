@@ -28,16 +28,29 @@ function onSuccess(data) {
 
     task_giver_name.html('')
     assigned_to_name.html('')
-    task_context.html('')
+    task_context.val('')
+    task_name.val('')
+    deadline.val('')
 
-    task_giver_photo.attr('src', data['task_giver']['photo'])
-    assigned_to_photo.attr('src', data['assigned_to']['photo'])
 
-    task_giver_name.html(data['task_giver']['name'])
-    assigned_to_name.html(data['assigned_to']['name'])
+    task_giver_photo.attr('src', data['task']['task_giver']['photo'])
+    assigned_to_photo.attr('src', data['task']['assigned_to']['photo'])
 
-    task_name.val(data['name'])
-    task_context.html(data['context'])
-    deadline.val(data['deadline'])
+    task_giver_name.html(data['task']['task_giver']['name'])
+    assigned_to_name.html(data['task']['assigned_to']['name'])
+
+    task_name.val(data['task']['name'])
+    task_context.val(data['task']['context'])
+    deadline.val(data['task']['deadline'])
+
+    if (data['can_edit']) {
+        task_name.prop('disabled', false)
+        task_context.prop('disabled', false)
+        deadline.prop('disabled', false)
+    }else {
+        task_name.prop('disabled', true)
+        task_context.prop('disabled', true)
+        deadline.prop('disabled', true)
+    }
 
 }
