@@ -1,138 +1,95 @@
 {% extends 'hrm/main.html' %}
 {% block content %}
+{% load custom_tags %}
+<style>
+    .table {
+        border-collapse: collapse;
+        margin: 20px 0px;
+        font-size: 0.9em;
 
-    <style>
-         .table {
-            border-collapse: collapse;
-            margin: 20px 0px;
-            font-size: 0.9em;
-            border-radius: 5px 5px 0 0;
-            overflow: hidden;
-            box-shadow: 0 0 20px rgba(0,0,0,0.25);
-        }
-        .table tbody tr:last-of-type{
-            border-bottom: 1px solid #000000;
-          }
-    </style>
-    <div class="all">
-        <br>
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.25);
+    }
 
-        <div class="row">
-            <div class="col-md">
-                <div class="card card-body">
-                    <h4>{{ employee.first_name }} {{employee.last_name}}</h4>
-                    <h6>@{{employee.username}}</h6>
-
-                    <p class="mb-0">section: {{employee.section}}</p>
-                    {% if employee.position.name == 'Manager' %}
-                        <div style="color: green;" class="mt-0 mb-0">[Manager]</div>
-                    {% else %}
-                        <div style="color: blue;">[Employee]</div>
-                    {% endif %}
-                    {% if request.user.employee.position.name == 'Director' %}
-                        <form method="POST" action="{% url 'change_position' %}">
-                            {% csrf_token %}
-                            <input type="hidden" name="employee_id" value="{{employee.id}}">
-                            <input type="hidden" name="next" value="{{request.path}}">
-                            <input type="Submit" name="submit" value="change" class="btn btn-sm btn-outline-danger pt-0 pb-0">
-                        </form>
-                    {% endif %}
-                    <hr>
-                    <a data-toggle="modal" data-target="#sendMessage" class="btn btn-outline-info  btn-sm btn-block" href="#update">Send Notification</a>
-                    <a class="btn btn-outline-primary  btn-sm btn-block" href="{% url 'create_task' employee.id %}?next={{request.path}}">Add Task</a>
-
+    .table tbody tr:last-of-type {
+        border-bottom: 1px solid #000000;
+    }
+</style>
+<div class="all">
+    <br>
+    <section class="px-0">
+        <div class="container-fluid">
+            <div class="row g-3">
+                <div class="col-lg-3 col-md-8 pb-3">
+                    <div class="card p-3">
+                        <div class="d-flex align-items-center">
+                            <div class="image"><img
+                                    src="https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=80"
+                                    class="rounded" width="155"></div>
+                            <div class="ml-3 w-100">
+                                <h4 class="mb-0 mt-0">{{employee.first_name}} {{employee.last_name}}</h4> <span>@{{employee.username}}</span>
+                                <div class="p-2 mt-2 bg-info bg-gradient d-flex justify-content-between rounded text-white stats">
+                                    <div class="d-flex flex-column"><span class="articles">Total</span> <span
+                                            class="number1">{{tasks_count}}</span></div>
+                                    <div class="d-flex flex-column"><span class="followers">Done</span> <span
+                                            class="number2">{{tasks_done_count}}</span></div>
+                                    <div class="d-flex flex-column"><span class="rating">Rating</span> <span
+                                            class="number3">8.9</span></div>
+                                </div>
+                                <div class="button mt-2 d-flex flex-row align-items-center">
+                                    <button class="btn btn-sm btn-outline-primary w-100">Profile Settings</button>
+                                    <button class="btn btn-sm btn-outline-primary w-100 ml-2">Site Settings</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!--Notifications-->
+                <div class="col-lg-3 col-md-4 pb-3">
+                    <div class="card card-body">
+                        <h5>Notifications</h5>
+                        <hr>
+                        <div class="overflow-auto" style="max-height: 93px" id="notificationScroll">
+                            {% for notification in notifications %}
+                            <div class="d-flex p-1 pb-0">
+                                <div class="col-4">
+                                    <b>{{notification.sender}}</b>
+                                </div>
+                                <div class="col-4">
+                                    <small>{{notification.text|max_len:10}}</small>
+                                </div>
+                                <div class="col-4">
+                                    <button type="button" style="padding: 0px 2px 0px 2px;"
+                                            class="btn btn-sm btn-outline-secondary">read
+                                    </button>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                <div class="col pb-3">
+                    <div class="card card-body" style="height: 198px">
+                        <h5>Total Tasks</h5>
+                        <hr>
+                        <h1 style="text-align: center;padding: 10px">{{tasks_count}}</h1>
+                    </div>
+                </div>
+                <div class="col pb-3">
+                    <div class="card card-body" style="height: 198px">
+                        <h5>Tasks Done</h5>
+                        <hr color="green">
+                        <h1 style="text-align: center;padding: 10px">{{tasks_done_count}}</h1>
+                    </div>
                 </div>
             </div>
 
-            <div class="col-md">
-                <div class="card card-body">
-                    <h5>Contact Information</h5>
-                    <hr>
-                    <table>
-                        <tr>
-                            <th>Email:</th>
-                            <td><a href="mailto:{{employee.email}}">{{employee.email}}</a></td>
-                        </tr>
-                        <tr>
-                            <th>Phone:</th>
-                            <td><a href="">{{ employee.phone }}</a> </td>
-                        </tr>
-                    </table>
-                </div>
-            </div>
-
-            <div class="col-md">
-                <div class="card card-body">
-                    <h5>Total Tasks</h5>
-                    <hr color="blue">
-                    <h1 style="text-align: center;padding: 10px">{{tasks_count}}</h1>
-                </div>
-            </div>
-            <div class="col-md">
-                <div class="card card-body">
-                    <h5>Tasks Done</h5>
-                    <hr color="green">
-                    <h1 style="text-align: center;padding: 10px">{{tasks_done_count}}</h1>
-                </div>
-            </div>
         </div>
-        <br>
-        <h4>Tasks:</h4>
-        <div class="row">
-            <div class="col-md">
-                <table id="table" class="table table-sm table-striped">
-                    <thead class="thead-dark">
-                        <th>Name</th>
-                        <th>Date Given</th>
-                        <th>Deadline</th>
-                        <th>End date</th>
-                        <th>Status</th>
-                        <th>Proceed</th>
-                    </thead>
-                    {% for task in tasks %}
-                        <tr>
-                            <td>{{task.0.name}}</td>
-                            <td>{{task.0.date_given}}</td>
-                            <td><progress id="progress" value="{{task.1.value}}" max="{{task.1.max}}"> {{task.1.percentage}}% </progress></td>
-                            <td style="color:{{task.1.deadline_color}};">{{task.0.deadline}}</td>
-                            <td style="color:{{task.1.status_color}};"><b>{{task.0.status}}</b></td>
-                            {% if task.0.task_giver.user == request.user %}
-                                    <td><a href="{% url 'edit_task' task.0.id %}?next={{request.path}}" class="btn btn-sm btn-success pr-3">edit</a></td>
-                            {% else %}
-                                    <td><a href="{% url 'view_task' task.0.id %}?next={{request.path}}" class="btn btn-sm btn-info">View</a></td>
-                            {% endif %}
-                        </tr>
-                    {% endfor %}
+    </section>
+    {% include 'hrm/tasks/tasks_table.html' with section_style='px-0 pt-4' %}
+    <script>
+        var element = document.getElementById("notificationScroll");
+        element.scrollTop = element.scrollHeight;
 
-                </table>
-            </div>
-        </div>
-    </div>
-
-<!-- Modal SendMessage   -->
-<div class="modal fade" id="sendMessage" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-      <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <form action="{% url 'send_notification' %}" method="POST">
-                      {% csrf_token %}
-                      <div class="modal-header">
-                            <h5 class="modal-title" id="exampleModalLabel">Send Notification</h5>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                              <span aria-hidden="true">&times;</span>
-                            </button>
-                      </div>
-                      <div class="modal-body">
-                            <input type="hidden" name="employee_id" value="{{employee.id}}">
-                            <input type="hidden" name="next" value="{{request.path}}">
-                            <input type="text" autocomplete="off" name="message" class="form-control" required>
-                      </div>
-                      <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                            <button type="submit" value="submit" class="btn btn-primary">Send</button>
-                      </div>
-                </form>
-            </div>
-      </div>
+    </script>
 </div>
-
 {% endblock %}

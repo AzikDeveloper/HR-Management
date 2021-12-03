@@ -1,0 +1,58 @@
+{% load custom_tags %}
+{% load static %}
+<div class="modal fade" id="createTaskModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Create Task</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form id="id_create_task_form">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col">
+                            <div class="form-group">
+                                <label for="id_assigned_to_input">Assign to</label>
+                                <p><input id="id_assigned_to_input" disabled="disabled" name="assigned_to" class="form-control"
+                                           required=""></p>
+                                <input type="hidden" id="id_assigned_to_id">
+                            </div>
+                        </div>
+                        <div class="col">
+
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <div class="form-group">
+                                <label for="id_name">Task name</label>
+                                <p><input type="text" name="name" class="form-control" maxlength="200" required=""
+                                          id="id_name"></p>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="form-group">
+                                <label for="id_deadline">DeadLine</label>
+                                <p><input class="form-control" type="datetime-local" name="deadline" value="T"
+                                          required="" id="id_deadline"></p>
+                            </div>
+                        </div>
+                    </div>
+                    <p>Context</p>
+                    <p><textarea name="context" cols="40" rows="10" class="form-control" maxlength="5000" required=""
+                                 id="id_context"></textarea></p>
+                </div>
+                <div class="modal-footer">
+                    <div id="id_create_task_loader" class=""></div>
+                    <div id="id_create_task_loader_text" class="d-none">Loading&#8230;</div>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" name="save" value="Create" class="btn btn-primary">Create Task</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+

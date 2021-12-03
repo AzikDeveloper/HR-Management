@@ -1,0 +1,26 @@
+Metadata-Version: 2.0
+Name: secure-smtplib
+Version: 0.1.1
+Summary: Secure SMTP subclasses for Python 2
+Home-page: https://github.com/graingert/secure-smtplib
+Author: Thomas Grainger
+Author-email: secure-smtplib@graingert.co.uk
+License: UNKNOWN
+Keywords: smtplib,TLS,SSL,verify,validate,ca_cert,ca
+Platform: UNKNOWN
+
+secure-smtplib
+==============
+
+Secure SMTP subclasses for Python 2
+
+
+Changes
+=========
+
+0.1.0 (2015-04-07)
+------------------
+
+- First version of secure-smtplib that can be installed from PyPI
+
+

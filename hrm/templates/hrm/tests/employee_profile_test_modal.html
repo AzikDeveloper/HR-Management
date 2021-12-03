@@ -1,0 +1,88 @@
+<style>
+    .profile-head {
+        transform: translateY(5rem)
+    }
+
+    .cover {
+        background-color: rgba(105, 232, 236, 0.75);
+        background-size: cover;
+        background-repeat: no-repeat
+    }
+
+    body {
+        background: #ebeff4;
+
+        min-height: 100vh;
+        overflow-x: hidden
+    }
+</style>
+
+<div class="bg-white rounded overflow-hidden">
+    <div class="px-4 pt-0 pb-4 cover">
+        <div class="media align-items-end profile-head">
+            <div class="profile mr-3"><img
+                    src="https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=80"
+                    alt="..." width="130" class="rounded mb-2 img-thumbnail"></div>
+            <div class="media-body mb-5 text-dark">
+                <h4 class="mt-0 mb-0"><span id="id_first_name"></span> <span id="id_last_name"></span></h4>
+                <p class="mb-3"><span id="id_username"></span></p>
+            </div>
+        </div>
+    </div>
+    <div class="bg-light p-4 d-flex justify-content-end text-center align-items-center">
+        <ul class="list-inline mb-0">
+            <li class="list-inline-item">
+                <h5 class="font-weight-bold mb-0 d-block"><span id="id_tasks_count"></span></h5><small
+                    class="text-muted">
+                Total Tasks</small>
+            </li>
+            <li class="list-inline-item">
+                <h5 class="font-weight-bold mb-0 d-block"><span id="id_tasks_done_count"></span></h5><small
+                    class="text-muted">
+                Done</small>
+            </li>
+            <li class="list-inline-item">
+                <h5 class="font-weight-bold mb-0 d-block"><span id="id_rating">rating_lorem</span></h5><small
+                    class="text-muted">
+                Rating</small>
+            </li>
+        </ul>
+    </div>
+    <div class="px-4 py-3">
+        <p class="mb-3">
+            <button style="pointer-events: none;" class="btn btn-outline-success px-1 py-0"><i
+                    class="fas fa-user-tie"></i>
+                <span id="id_group">group_lorem</span>
+            </button>
+            in
+            <a id="id_section_href" href="/section/"
+               class="btn btn-outline-primary px-1 py-0">
+                <i class="fas fa-users"></i>
+                <span id="id_section">section_lorem</span>
+            </a>
+            section
+        </p>
+        <div class="card mb-2">
+            <div class="card-header">
+                <h4>About</h4>
+            </div>
+            <div class="card-body">
+                <p>
+                    <span id="id_about">about_lorem</span>
+                </p>
+            </div>
+        </div>
+
+        <div class="card mt-0">
+            <div class="card-body">
+                <p>
+                <h4><b>Address: </b></h4><span id="id_address">address_lorem</span>
+                </p>
+                <p>
+                <h4><b>Salary: </b></h4><span id="id_salary">salary_lorem</span>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+

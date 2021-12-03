@@ -1,236 +1,197 @@
 {% extends 'hrm/main.html' %}
 {% block content %}
+{% load custom_tags %}
 
-    <style>
-         .table {
-            border-collapse: collapse;
-            margin: 20px 0px;
-            font-size: 0.9em;
-            border-radius: 5px 5px 0 0;
-            overflow: hidden;
-            box-shadow: 0 0 20px rgba(0,0,0,0.25);
-        }
-        .table tbody tr:last-of-type{
-            border-bottom: 1px solid #000000;
-          }
-    </style>
-    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-    <script type="text/javascript">
-      google.charts.load('current', {'packages':['corechart']});
-      google.charts.load('current', {'packages':['bar']});
-      google.charts.setOnLoadCallback(drawChart);
+<style>
+    .table {
+        border-collapse: collapse;
+        margin: 20px 0px;
+        font-size: 0.9em;
 
-      function drawChart() {
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.25);
+    }
+
+    .table tbody tr:last-of-type {
+        border-bottom: 1px solid #000000;
+    }
+</style>
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+<script type="text/javascript">
+    google.charts.load('current', {'packages': ['corechart']});
+    google.charts.load('current', {'packages': ['bar']});
+    google.charts.setOnLoadCallback(drawChart);
+
+    function drawChart() {
         var data1 = google.visualization.arrayToDataTable([
-          ['day', 'total', 'processing', 'done'],
-          [1,  1000,      400,         215],
-          [2,  1170,      460,         270],
-          [3,  1240,      570,         340],
-          [4,  1278,      674,         560],
-           [5,  1301,      680,         560],
-            [6,  1343,      701,         560],
-             [7,  1357,      723,         560],
-              [8,  1375,      745,         560]
-              , [9,  1403,      756,         560]
-              , [10,  1423,      774,         560]
-              , [11,  1446,      785,         560]
-              , [12,  1487,      804,         560]
-              , [13,  1511,      825,         560]
-              , [14,  1515,      836,         560]
-              , [15,  1567,      854,         560]
-              , [16,  1584,      865,         560]
-              , [17,  1584,      888,         560]
-              , [18,  1634,      893,         560]
-              , [19,  1667,      965,         560]
-              , [20,  1698,      978,         560]
+            ['day', 'total', 'processing', 'done'],
+            [1, 1000, 400, 215],
+            [2, 1170, 460, 270],
+            [3, 1240, 570, 340],
+            [4, 1278, 674, 560],
+            [5, 1301, 680, 560],
+            [6, 1343, 701, 560],
+            [7, 1357, 723, 560],
+            [8, 1375, 745, 560]
+            , [9, 1403, 756, 560]
+            , [10, 1423, 774, 560]
+            , [11, 1446, 785, 560]
+            , [12, 1487, 804, 560]
+            , [13, 1511, 825, 560]
+            , [14, 1515, 836, 560]
+            , [15, 1567, 854, 560]
+            , [16, 1584, 865, 560]
+            , [17, 1584, 888, 560]
+            , [18, 1634, 893, 560]
+            , [19, 1667, 965, 560]
+            , [20, 1698, 978, 560]
         ]);
 
         var data2 = google.visualization.arrayToDataTable([
-          ['Sections', 'total', 'processing', 'done'],
-          ['Moliya', 62, 31, 17],
-          ['Manaviyat', 74, 45, 25],
-          ['Xavfsizlik', 32, 13, 17],
-          ['Pochta', 143, 32, 101]
+            ['Sections', 'total', 'processing', 'done'],
+            ['Moliya', 62, 31, 17],
+            ['Manaviyat', 74, 45, 25],
+            ['Xavfsizlik', 32, 13, 17],
+            ['Pochta', 143, 32, 101]
         ]);
 
         var options1 = {
-          title: 'Tasks',
-          curveType: 'function',
-          legend: { position: 'bottom' },
-          colors: ['#0275d8', '#5bc0de', 'green' ],
-          animation: {
-              duration: 300,
-              easing: 'out',
-              startup: true
-          }
+            title: 'Tasks',
+            curveType: 'function',
+            legend: {position: 'bottom'},
+            colors: ['#0275d8', '#5bc0de', 'green'],
+            animation: {
+                duration: 300,
+                easing: 'out',
+                startup: true
+            }
         };
 
         var options2 = {
-          chart: {
-            title: 'Section Tasks',
-            subtitle: 'total, processing, and done. (monthly)',
-          },
-          colors: ['#0275d8', '#5bc0de', 'green' ],
+            chart: {
+                title: 'Section Tasks',
+                subtitle: 'total, processing, and done. (monthly)',
+            },
+            colors: ['#0275d8', '#5bc0de', 'green'],
         };
-
 
         var chart1 = new google.visualization.LineChart(document.getElementById('tasks_count_chart'));
         chart1.draw(data1, options1);
 
         var chart2 = new google.charts.Bar(document.getElementById('tasks_count_by_sections_chart'));
-
         chart2.draw(data2, google.charts.Bar.convertOptions(options2));
-      }
-    </script>
-    <div class="all">
 
-        <br>
-        <div class="row">
-                        <!-- TASKS ALL -->
-                        <div class="col-xl-3 col-md-6 mb-4">
-                            <div class="card border-start-primary shadow h-100 py-2">
-                                <div class="card-body">
-                                    <div class="row no-gutters align-items-center">
-                                        <div class="col mr-2">
-                                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                                Total tasks (Monthly)</div>
-                                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{tasks_count}}</div>
-                                        </div>
-                                        <div class="col-auto">
-                                            <i class="fas fa-calendar fa-2x text-gray-300"></i>
-                                        </div>
+        function resize() {
+            var chart1 = new google.visualization.LineChart(document.getElementById('tasks_count_chart'));
+            chart1.draw(data1, options1);
+
+            var chart2 = new google.charts.Bar(document.getElementById('tasks_count_by_sections_chart'));
+            chart2.draw(data2, google.charts.Bar.convertOptions(options2));
+        }
+
+        window.onload = resize;
+        window.onresize = resize;
+    }
+</script>
+<div class="all">
+    <section class="p-3">
+        <div class="container-fluid">
+            <div class="row g-5">
+                <div class="col-lg-3 col-sm-6 pb-3">
+                    <div class="card border-start-primary shadow h-100 py-2" style="border-left: 4px solid blue;">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                        Total tasks (Monthly)
                                     </div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{tasks_count}}</div>
                                 </div>
-                            </div>
-                        </div>
-
-                        <!-- TASKS NEW-->
-                        <div class="col-xl-3 col-md-6 mb-4">
-                            <div class="card border-start-success shadow h-100 py-2">
-                                <div class="card-body">
-                                    <div class="row no-gutters align-items-center">
-                                        <div class="col mr-2">
-                                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                                                Tasks new </div>
-                                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{tasks_new_count}}</div>
-                                        </div>
-                                        <div class="col-auto">
-                                            <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- TASKS PROCESSING -->
-                        <div class="col-xl-3 col-md-6 mb-4">
-                            <div class="card border-start-success shadow h-100 py-2">
-                                <div class="card-body">
-                                    <div class="row no-gutters align-items-center">
-                                        <div class="col mr-2">
-                                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
-                                                Tasks processing </div>
-                                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{tasks_processing_count}}</div>
-                                        </div>
-                                        <div class="col-auto">
-                                            <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- TASKS DONE -->
-                        <div class="col-xl-3 col-md-6 mb-4">
-                            <div class="card border-start-warning shadow h-100 py-2">
-                                <div class="card-body">
-                                    <div class="row no-gutters align-items-center">
-                                        <div class="col mr-2">
-                                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                                Tasks done</div>
-                                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{tasks_done_count}}</div>
-                                        </div>
-                                        <div class="col-auto">
-                                            <i class="fas fa-comments fa-2x text-gray-300"></i>
-                                        </div>
-                                    </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-calendar fa-2x text-gray-300"></i>
                                 </div>
                             </div>
                         </div>
                     </div>
-        <div class="row">
-            <div class="col-xl-6 mb-4">
-                <div class="card card-body border-start-primary shadow h-100 py-2">
-                    <div class="m-0" id="tasks_count_chart" style="position: relative; width: 600px; height: 350px"></div>
                 </div>
+                <div class="col-lg-3 col-sm-6 pb-3">
+                    <div class="card border-start-success shadow h-100 py-2" style="border-left: 4px solid orange;">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                        Tasks new
+                                    </div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{tasks_new_count}}</div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="far fa-plus-square fa-2x"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-sm-6 pb-3">
+                    <div class="card border-start-success shadow h-100 py-2" style="border-left: 4px solid #17a2b8;">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                        Tasks processing
+                                    </div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{tasks_processing_count}}</div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-cogs fa-2x"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-sm-6 pb-3">
+                    <div class="card border-start-warning shadow h-100 py-2" style="border-left: 4px solid #218838;">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                        Tasks done
+                                    </div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{tasks_done_count}}</div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="far fa-check-circle fa-2x"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
-            <div class="col-xl-6 mb-4">
-                <div class="card card-body border-start-primary shadow h-100 py-2">
-                    <div class="m-0" id="tasks_count_by_sections_chart" style="position: relative; width: 600px; height: 350px"></div>
+        </div>
+    </section>
+    <section class="p-3 pt-0">
+        <div class="container-fluid">
+            <div class="row g-3">
+                <div class="col-lg-6 pb-3">
+                    <div class="card card-body border-start-primary shadow h-100 p-0">
+                        <div class="m-0" style="height: 350px; width: 100%;" id="tasks_count_chart">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6 pb-3">
+                    <div class="card card-body border-start-primary shadow h-100 ">
+                        <div class="m-0" style="height: 350px; width: 100%;"
+                             id="tasks_count_by_sections_chart"></div>
+                    </div>
                 </div>
             </div>
         </div>
+    </section>
 
-        <br>
-        <h4>{{request.user.employee.section}} Tasks:</h4>
-        <div class="row">
-            <div class="col-md">
-                <form method="get">
-                    <table id="table" class="table table-sm table-striped">
-                        <thead class="thead-dark">
-                            <tr>
-    <!--                            <th>-->
-    <!--                                <div class="form-check">-->
-    <!--                                  <input class="form-check-input all-check" onClick="toggle(this)" type="checkbox" value="" id="id_all_check">-->
-    <!--                                  <label class="form-check-label" for="id_all_check">-->
-    <!--                                  </label>-->
-    <!--                                </div>-->
-    <!--                            </th>-->
-                                <th>Name</th>
-                                <th>Date Given</th>
-                                <th>Deadline</th>
-                                <th>End date</th>
-                                <th>Status</th>
-                                <th>Proceed</th>
-                            </tr>
-                            <tr>
-                                <th>{{filter.form.name}}</th>
-                                <th>{{filter.form.date_given}}</th>
-                                <th></th>
-                                <th>{{filter.form.deadline}}</th>
-                                <th>{{filter.form.status}}</th>
-                                <th><button class="btn btn-info btn-sm" type="submit">Filter</button></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        {% for task in tasks %}
-                            <tr>
-<!--                                <td>-->
-<!--                                    <div class="form-check">-->
-<!--                                      <input class="form-check-input check" type="checkbox" value="" id="id_task_check-{{task.0.id}}">-->
-<!--                                    </div>-->
-<!--                                </td>-->
-                                <td>{{task.0.name}}</td>
-                                <td>{{task.0.date_given}}</td>
-                                <td><progress id="progress" value="{{task.1.value}}" max="{{task.1.max}}"> {{task.1.percentage}}% </progress></td>
-                                <td style="color:{{task.1.deadline_color}};">{{task.0.deadline}}</td>
-                                <td style="color:{{task.1.status_color}};"><b>{{task.0.status}}</b></td>
-                                {% if task.0.task_giver.user == request.user %}
-                                    <td><a href="{% url 'edit_task' task.0.id %}?next={{request.path}}" class="btn btn-sm btn-success pr-3">edit</a></td>
-                                {% else %}
-                                    <td><a href="{% url 'view_task' task.0.id %}?next={{request.path}}" class="btn btn-sm btn-info">View</a></td>
-                                {% endif %}
 
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-                </form>
-            </div>
-        </div>
-    </div>
+    {% include 'hrm/tasks/tasks_table.html' with section_style='p-3' %}
 
-<br>
-<br>
-<br>
+
+</div>
+
+
 {% endblock %}

@@ -1,0 +1,51 @@
+{% load custom_tags %}
+<section class="{{ section_style }}">
+    <div class="container-fluid mr-3 ml-3 w-auto">
+        <form id="id_tasks_form" method="get">
+            <table id="table" class="table table-sm table-striped shadow">
+                <thead class="thead-dark">
+                <tr class="d-flex">
+                    <th class="col-2">Name</th>
+                    <th class="col-2">Task Giver</th>
+                    <th class="col-2">Assigned to</th>
+                    <th class="col-1">Date Given</th>
+                    <th class="col-2">Deadline</th>
+                    <th class="col-1">End date</th>
+                    <th class="col-1">Status</th>
+                    <th class="col-1 text-center">Proceed</th>
+                </tr>
+                <tr class="d-flex">
+                    <th class="col-2">
+                        <input type="text" class="form-control-sm" autocomplete="off"
+                               spellcheck="false" id="id_name_input" placeholder="enter task name">
+                    </th>
+                    <th class="col-2">
+                        <input type="text" class="form-control-sm" autocomplete="off"
+                               spellcheck="false" id="id_task_giver_input" placeholder="enter task giver username">
+                    </th>
+                    <th class="col-2">
+                        <input type="text" class="form-control-sm" autocomplete="off"
+                               spellcheck="false" id="id_assigned_to_input" placeholder="enter task doer username">
+                    </th>
+                    <th class="col-1"></th>
+                    <th class="col-2"></th>
+                    <th class="col-1"></th>
+                    <th class="col-1">
+                        <select name="status" class="form-control-sm w-50" id="id_status_select">
+                            <option value="all" selected="">all</option>
+                            <option value="new">new</option>
+                            <option value="processing">processing</option>
+                            <option value="done">done</option>
+                        </select>
+                    </th>
+                    <th class="col-1 text-center">
+                        <button class="btn btn-info btn-sm" type="submit">Filter</button>
+                    </th>
+                </tr>
+                </thead>
+                <tbody id="id_tbody_tasks">
+                </tbody>
+            </table>
+        </form>
+    </div>
+</section>

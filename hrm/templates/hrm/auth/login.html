@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <title>Login</title>
+    {% include 'hrm/common_cdn/head.html' with bootstrap=1 %}
+
+    <link rel="stylesheet" type="text/css" href="{% static 'hrm/css/auth/util.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'hrm/css/auth/login_main.css' %}">
+
+    <meta name="robots" content="noindex, follow">
+</head>
+<body>
+<div class="limiter">
+    <div class="container-login100">
+        <div class="wrap-login100">
+            <form class="login100-form validate-form p-l-55 p-r-55 p-t-178" action="" method="POST">{% csrf_token %}
+                <span class="login100-form-title">
+Kirish
+</span>
+                <div class="wrap-input100 validate-input m-b-16" data-validate="Please enter username">
+                    <input class="input100" type="text" name="username" placeholder="Username">
+                    <span class="focus-input100"></span>
+                </div>
+                <div class="wrap-input100 validate-input" data-validate="Please enter password">
+                    <input class="input100" type="password" name="password" placeholder="Password">
+                    <span class="focus-input100"></span>
+                </div>
+
+                <div class="text-center p-t-13 p-b-23">
+                    <span style="color: #f44336">{{ error }}</span>
+                </div>
+                <div class="container-login100-form-btn">
+                    <button class="login100-form-btn">
+                        Kirish
+                    </button>
+                </div>
+                <div class="flex-col-c p-t-60">
+                    <div class="flex-col-c p-t-30">
+                        {% if messages %}
+                            {% for message in messages %}
+                                <div class="alert alert-danger" role="alert">
+                                    {{ message }}
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+</body>
+</html>

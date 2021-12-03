@@ -1,0 +1,111 @@
+{% load static %}
+<style>
+    .profile-head {
+        transform: translateY(5rem)
+    }
+
+    .cover {
+        background-color: #0088CC;
+        background-size: cover;
+        background-repeat: no-repeat
+    }
+
+    .name{
+        color: white;
+    }
+
+
+</style>
+
+<div class="modal fade" id="employeeProfileModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content p-0 m-0">
+            <div id="id_profile_view" class="">
+                <input id="user_id" type="hidden" class="form-control">
+                <div class="bg-white rounded overflow-hidden">
+                    <div class="px-4 pt-0 pb-4 cover">
+                        <div class="media align-items-end profile-head">
+                            <div class="profile mr-3 pb-1"><img id="id_profile_picture"
+                                                           src=""
+                                                           alt="..." width="130" class="rounded mb-2 img-thumbnail border-primary">
+                            </div>
+                            <div class="media-body mb-5 text-dark">
+                                <h4 class="mt-0 mb-0"><span id="id_first_name" class="name"></span> <span class="name" id="id_last_name"></span>
+                                </h4>
+                                <p class="mb-3"><span class="name" id="id_username"></span></p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-light p-4 d-flex justify-content-end text-center align-items-center mt-1">
+                        <button style="pointer-events: none;"
+                                class="btn btn-outline-success px-1 py-0 ml-3 mt-4 mr-auto"><i
+                                class="fas fa-user-tie"></i>
+                            <span id="id_group">group_lorem</span>
+                        </button>
+                        <ul class="list-inline mb-0">
+                            <li class="list-inline-item">
+                                <h5 class="font-weight-bold mb-0 d-block"><span id="id_tasks_count"></span></h5><small
+                                    class="text-muted">
+                                Total Tasks</small>
+                            </li>
+                            <li class="list-inline-item">
+                                <h5 class="font-weight-bold mb-0 d-block"><span id="id_tasks_done_count"></span></h5>
+                                <small
+                                        class="text-muted">
+                                    Done</small>
+                            </li>
+                            <li class="list-inline-item">
+                                <h5 class="font-weight-bold mb-0 d-block"><span id="id_rating">rating_lorem</span></h5>
+                                <small
+                                        class="text-muted">
+                                    Rating</small>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="px-4 py-3">
+                        <p class="mb-3">
+                            <!--                            <button style="pointer-events: none;" class="btn btn-outline-success px-1 py-0"><i-->
+                            <!--                                    class="fas fa-user-tie"></i>-->
+                            <!--                                <span id="id_group">group_lorem</span>-->
+                            <!--                            </button>-->
+                            <a id="id_section_href" href="/section/"
+                               class="btn btn-outline-primary px-1 py-0">
+                                <i class="fas fa-users"></i>
+                                <span id="id_section">section_lorem</span>
+                            </a>
+                        </p>
+                        <div class="card mb-2">
+                            <div class="card-header">
+                                <h4>About</h4>
+                            </div>
+                            <div class="card-body">
+                                <p>
+                                    <span id="id_about">about_lorem</span>
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="card mb-2">
+                            <div class="card-header">
+                                <h4>Address</h4>
+                            </div>
+                            <div class="card-body">
+                                <p>
+                                    <span id="id_address">about_lorem</span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div id="id_profile_loader" class="d-none"></div>
+                <div id="id_profile_loader_text" class="d-none">Loading&#8230;</div>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <a id="id_profile_go" class="btn btn-primary text-light">Profile</a>
+            </div>
+        </div>
+    </div>
+</div>
+

@@ -1,0 +1,88 @@
+{% load custom_tags %}
+{% load static %}
+<style>
+    .profile-picture{
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+    }
+</style>
+<div class="modal fade" id="viewTaskModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">View Task</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form id="id_view_task_modal">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col">
+                            <div class="form-group">
+                                <label for="id_assigned_to_input">Task Giver</label>
+                                <div class="card" style="cursor: pointer;">
+                                    <div class="card-body p-2">
+                                        <div class="d-flex align-items-center">
+                                            <div class="col-auto pl-0">
+                                                <img id="id_task_giver_photo_img" class="profile-picture m-0" src="" alt="profile photo">
+                                            </div>
+                                            <div class="col pl-0">
+                                                <h4 id="id_task_giver_name"></h4>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="form-group">
+                                <label for="id_assigned_to_input">Assigned to</label>
+                                <div class="card" style="cursor: pointer;">
+                                    <div class="card-body p-2">
+                                        <div class="d-flex align-items-center">
+                                            <div class="col-auto pl-0">
+                                                <img id="id_assigned_to_img" class="profile-picture m-0" src="" alt="profile photo">
+                                            </div>
+                                            <div class="col pl-0">
+                                                <h4 id="id_assigned_to_name"></h4>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <div class="form-group">
+                                <label for="id_task_name">Task name</label>
+                                <p><input type="text" name="name" class="form-control" maxlength="200" required=""
+                                          id="id_task_name"></p>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="form-group">
+                                <label for="id_task_deadline">DeadLine</label>
+                                <p><input class="form-control" type="datetime-local" name="deadline" value="T"
+                                          required="" id="id_task_deadline"></p>
+                            </div>
+                        </div>
+                    </div>
+                    <p>Context</p>
+                    <p><textarea name="context" cols="40" rows="10" class="form-control" maxlength="5000" required=""
+                                 id="id_task_context"></textarea></p>
+                </div>
+                <div class="modal-footer">
+                    <div id="id_create_task_loader" class=""></div>
+                    <div id="id_create_task_loader_text" class="d-none">Loading&#8230;</div>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" name="save" value="Create" class="btn btn-primary">Create Task</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+

@@ -1,14 +1,15 @@
 from django_filters import CharFilter, FilterSet, ChoiceFilter, DateFilter
+from django.contrib.auth.models import User
 from django import forms
-from .models import Employee, Task
+from .models import Task
 
 
 class EmployeeFilter(FilterSet):
     username = CharFilter(field_name='username', lookup_expr='icontains')
 
     class Meta:
-        model = Employee
-        fields = ['email']
+        model = User
+        fields = ['username']
 
 
 class TaskFilter(FilterSet):

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Settings</title>
+    {% include 'hrm/common_cdn/head.html' %}
+    <link rel="stylesheet" type="text/css" href="{% static 'hrm/css/main.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'hrm/css/loading_element.css' %}">
+</head>
+<body>
+{% include 'hrm/navbar.html' %}
+<div class="section p-3">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-4 col-md-8">
+                <div class="card m-1">
+                    <div class="card-header"><h4 class="mt-1">Add employee</h4></div>
+                    <div class="card-body pb-1">
+                        <form id="id_create_employee_form">
+                            <div class="form-group">
+                                <label>Email address</label>
+                                <input id="id_email_input" type="text" class="form-control"
+                                       placeholder="email" required="required">
+                            </div>
+                            <div class="form-group d-flex justify-content-center align-items-center">
+                                <div class="col pl-0">
+                                    <label for="id_section_select">Select section</label>
+                                    <select id="id_section_select" class="form-control" required="required">
+                                        <option value="">-----</option>
+                                    </select>
+                                </div>
+                                <div class="col pr-0">
+                                    <label for="id_position_select">Select position</label>
+                                    <select id="id_position_select" class="form-control" required="required">
+
+                                    </select>
+                                </div>
+
+                            </div>
+                            <div class="d-flex align-items-center pb-3">
+                                <div class="col-lg-8 p-0">
+                                    <div class="d-flex align-items-center">
+                                        <div class="col-lg-3">
+                                            <div id="id_create_task_loader" class=""></div>
+                                        </div>
+                                        <div class="col-lg-9">
+                                            <div id="id_create_task_loader_text" class="d-none"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-4 text-right pt-1 pr-0">
+                                    <button id="id_create_employee_button" type="submit" class="btn btn-primary">
+                                        Create
+                                    </button>
+                                </div>
+                            </div>
+
+
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-8 col-md-4">
+
+            </div>
+        </div>
+    </div>
+</div>
+
+{% include 'hrm/common_cdn/footer.html' %}
+<script src="{% static 'hrm/js/settings/init.js' %}"></script>
+<script src="{% static 'hrm/js/settings/create_employee.js' %}"></script>
+
+</body>
+</html>

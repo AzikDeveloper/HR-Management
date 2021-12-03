@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Tasks</title>
+    {% include 'hrm/common_cdn/head.html' %}
+    <link rel="stylesheet" type="text/css" href="{% static 'hrm/css/main.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'hrm/css/loading_element.css' %}">
+    <style href="{% static 'hrm/css/paginator.css' %}"></style>
+
+</head>
+<body>
+{% include 'hrm/navbar.html' %}
+<div id="id_body" style="display: none" class="all">
+    <section class="p-3">
+        <div class="container-fluid w-auto">
+            <div class="row g-5">
+                <div class="col-lg-2 col-md-6">
+                    <div class="card card-body shadow-sm mt-2 mb-0 bg-white rounded">
+                        <div id="id_users_search_form" class="d-flex form justify-content-start align-items-center">
+                            <div class="col-12 pl-1" title="tasks by section">
+                                <div class="input-group d-flex align-items-center">
+                                    <select id="id_section_select" class="form-control">
+                                        <option value="all" selected>all sections</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-10 d-flex m-0">
+                    <!-- total tasks -->
+                    <div class="col-md-3 pb-3">
+                        <div class="card border-start-primary shadow h-100 py-2" style="border-left: 4px solid blue;">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                            Total tasks
+                                        </div>
+                                        <div id="id_tasks_total_count"
+                                             class="h5 mb-0 font-weight-bold text-gray-800"></div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="fas fa-calendar fa-2x text-gray-300"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- new tasks -->
+                    <div class="col-md-3 pb-3">
+                        <div class="card border-start-success shadow h-100 py-2" style="border-left: 4px solid orange;">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                            Tasks new
+                                        </div>
+                                        <div id="id_tasks_new_count"
+                                             class="h5 mb-0 font-weight-bold text-gray-800"></div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="far fa-plus-square fa-2x"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- processing tasks -->
+                    <div class="col-md-3 pb-3">
+                        <div class="card border-start-success shadow h-100 py-2"
+                             style="border-left: 4px solid #17a2b8;">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                            Tasks processing
+                                        </div>
+                                        <div id="id_tasks_processing_count"
+                                             class="h5 mb-0 font-weight-bold text-gray-800"></div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="fas fa-cogs fa-2x"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- tasks done -->
+                    <div class="col-md-3 pb-3 pr-0">
+                        <div class="card border-start-warning shadow h-100 py-2"
+                             style="border-left: 4px solid #218838;">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                            Tasks done
+                                        </div>
+                                        <div id="id_tasks_done_count"
+                                             class="h5 mb-0 font-weight-bold text-gray-800"></div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="far fa-check-circle fa-2x"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    {% include 'hrm/tasks/tasks_table.html' with section_style='pt-1' %}
+    {% include 'hrm/tools/paginator.html' %}
+
+    {% include 'hrm/modals/view_task_modal.html' %}
+    {% include 'hrm/modals/employee_profile_modal.html' %}
+
+
+</div>
+
+{% include 'hrm/common_cdn/footer.html' %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twbs-pagination/1.4.1/jquery.twbsPagination.min.js"></script>
+<script src="{% static 'hrm/js/paginator.js' %}"></script>
+<script src="{% static 'hrm/js/tasks/init.js' %}"></script>
+<script src="{% static 'hrm/js/tasks/eventhandlers.js' %}"></script>
+<script src="{% static 'hrm/js/tasks/search_tasks.js' %}"></script>
+<script src="{% static 'hrm/js/tasks/viewTask.js' %}"></script>
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+
+</body>
+</html>

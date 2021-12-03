@@ -1,0 +1,55 @@
+def registerView(request, token):
+    try:
+        token = uuid.UUID(token)
+    except ValueError:
+        return HttpResponseBadRequest("Invalid link")
+
+    gen_link: GenLink = get_object_or_404(GenLink, token=token)
+
+    if not (gen_link.used and gen_link.is_expired()):
+        if request.method == 'POST':
+            request_post = fullNameParser(request)
+            if request_post:
+                if '@' in request.POST.get('username'):
+                    context = {
+                        'error': '@ is not allowed in username',
+                        'full_name': request.POST.get('full_name'),
+                        'username': request.POST.get('username'),
+                        'password1': request.POST.get('password1'),
+                        'password2': request.POST.get('password2')
+                    }
+                    return render(request, 'hrm/register.html', context)
+                else:
+                    form = CreateUserForm(request_post)
+                    if form.is_valid():
+                        employee = gen_link[0].employee
+                        user = employee.user
+                        user.username = request_post.get('username')
+                        user.set_password(request_post.get('password1'))
+                        employee.first_name = request_post.get('first_name')
+                        employee.last_name = request_post.get('last_name')
+                        user.save()
+                        employee.save()
+                        gen_link.delete()
+                        return redirect('login')
+                    else:
+                        context = {
+                            'error': firstFormError(form),
+                            'full_name': request.POST.get('full_name'),
+                            'username': request.POST.get('username'),
+                            'password1': request.POST.get('password1'),
+                            'password2': request.POST.get('password2')
+                        }
+                        return render(request, 'hrm/register.html', context)
+            else:
+                context = {
+                    'error': 'Wrong full name!',
+                    'full_name': request.POST.get('full_name'),
+                    'username': request.POST.get('username'),
+                    'password1': request.POST.get('password1'),
+                    'password2': request.POST.get('password2')
+                }
+                return render(request, 'hrm/register.html', context)
+        return render(request, 'hrm/register.html')
+    else:
+        return HttpResponseGone("This link is expired")

@@ -1,106 +1,95 @@
 {% extends 'hrm/main.html' %}
 {% block content %}
+{% load custom_tags %}
+<style>
+    .table {
+        border-collapse: collapse;
+        margin: 20px 0px;
+        font-size: 0.9em;
 
-    <style>
-         .table {
-            border-collapse: collapse;
-            margin: 20px 0px;
-            font-size: 0.9em;
-            border-radius: 5px 5px 0 0;
-            overflow: hidden;
-            box-shadow: 0 0 20px rgba(0,0,0,0.25);
-        }
-        .table tbody tr:last-of-type{
-            border-bottom: 1px solid #000000;
-          }
-    </style>
-    <div class="all">
-        <br>
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.25);
+    }
 
-        <div class="row">
-            <div class="col-md">
-                <div class="card card-body">
-                    <h4>{{ employee.first_name }} {{employee.last_name}}</h4>
-                    <h6>@{{ employee }}</h6>
-                    <p class="mb-0">section: {{employee.section}}</p>
-                    {% if request.user.employee.position.name == 'Manager' %}
-                        <div style="color: green;" class="mt-0 mb-0">[Manager]</div>
-                    {% else %}
-                        <div style="color: blue;">[Employee]</div>
-                    {% endif %}
-                    <hr>
-                    <a class="btn btn-outline-info  btn-sm btn-block" href="{% url 'edit_profile' %}?next={{request.path}}">Edit Profile</a>
+    .table tbody tr:last-of-type {
+        border-bottom: 1px solid #000000;
+    }
+</style>
+<div class="all">
+    <br>
+    <section class="px-0">
+        <div class="container-fluid">
+            <div class="row g-3">
+                <div class="col-lg-3 col-md-8 pb-3">
+                    <div class="card p-3">
+                        <div class="d-flex align-items-center">
+                            <div class="image"><img
+                                    src="https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=80"
+                                    class="rounded" width="155"></div>
+                            <div class="ml-3 w-100">
+                                <h4 class="mb-0 mt-0">{{employee.first_name}} {{employee.last_name}}</h4> <span>@{{employee.username}}</span>
+                                <div class="p-2 mt-2 bg-info bg-gradient d-flex justify-content-between rounded text-white stats">
+                                    <div class="d-flex flex-column"><span class="articles">Total</span> <span
+                                            class="number1">{{tasks_count}}</span></div>
+                                    <div class="d-flex flex-column"><span class="followers">Done</span> <span
+                                            class="number2">{{tasks_done_count}}</span></div>
+                                    <div class="d-flex flex-column"><span class="rating">Rating</span> <span
+                                            class="number3">8.9</span></div>
+                                </div>
+                                <div class="button mt-2 d-flex flex-row align-items-center">
+                                    <button class="btn btn-sm btn-outline-primary w-100">Profile Settings</button>
+                                    <button class="btn btn-sm btn-outline-primary w-100 ml-2">Site Settings</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!--Notifications-->
+                <div class="col-lg-3 col-md-4 pb-3">
+                    <div class="card card-body">
+                        <h5>Notifications</h5>
+                        <hr>
+                        <div class="overflow-auto" style="max-height: 93px" id="notificationScroll">
+                            {% for notification in notifications %}
+                            <div class="d-flex p-1 pb-0">
+                                <div class="col-4">
+                                    <b>{{notification.sender}}</b>
+                                </div>
+                                <div class="col-4">
+                                    <small>{{notification.text|max_len:10}}</small>
+                                </div>
+                                <div class="col-4">
+                                    <button type="button" style="padding: 0px 2px 0px 2px;"
+                                            class="btn btn-sm btn-outline-secondary">read
+                                    </button>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                <div class="col pb-3">
+                    <div class="card card-body" style="height: 198px">
+                        <h5>Total Tasks</h5>
+                        <hr>
+                        <h1 style="text-align: center;padding: 10px">{{tasks_count}}</h1>
+                    </div>
+                </div>
+                <div class="col pb-3">
+                    <div class="card card-body" style="height: 198px">
+                        <h5>Tasks Done</h5>
+                        <hr color="green">
+                        <h1 style="text-align: center;padding: 10px">{{tasks_done_count}}</h1>
+                    </div>
                 </div>
             </div>
 
-            <div class="col-md">
-                <div class="card card-body">
-                    <h5>Notifications</h5>
-                    <hr>
-                    <table id="messagesTable">
-                        {% for message in messages %}
-                            <tr>
-                                <th>{{message.sender}}:</th>
-                                <td>{{message.text}}</td>
-                            </tr>
-                        {% endfor %}
-                    </table>
-                </div>
-            </div>
-
-            <div class="col-md">
-                <div class="card card-body">
-                    <h5>Total Tasks</h5>
-                    <hr color="blue">
-                    <h1 style="text-align: center;padding: 10px">{{tasks_count}}</h1>
-                </div>
-            </div>
-            <div class="col-md">
-                <div class="card card-body">
-                    <h5>Tasks Done</h5>
-                    <hr color="green">
-                    <h1 style="text-align: center;padding: 10px">{{tasks_done_count}}</h1>
-                </div>
-            </div>
         </div>
-        <br>
-        <h4>Tasks history:</h4>
-        <div class="row">
-            <div class="col-md">
-                <form method="get">
-                    <table id="table" class="table table-sm table-striped">
-                        <thead class="thead-dark">
-                                <tr>
-                                    <th>Name</th>
-                                    <th>Date Given</th>
-                                    <th>Deadline</th>
-                                    <th>End date</th>
-                                    <th>Status</th>
-                                    <th>Enter</th>
-                                </tr>
-                                <tr>
-                                    <th>{{filter.form.name}}</th>
-                                    <th>{{filter.form.date_given}}</th>
-                                    <th></th>
-                                    <th>{{filter.form.deadline}}</th>
-                                    <th>{{filter.form.status}}</th>
-                                    <th><button class="btn btn-info btn-sm" type="submit">Filter</button></th>
-                                </tr>
-                        </thead>
-                        {% for task in tasks %}
-                            <tr>
-                                <td>{{task.0.name}}</td>
-                                <td>{{task.0.date_given}}</td>
-                                <td><progress id="progress" value="{{task.1.value}}" max="{{task.1.max}}"> {{task.1.percentage}}% </progress></td>
-                                <td style="color:{{task.1.deadline_color}};">{{task.0.deadline}}</td>
-                                <td style="color:{{task.1.status_color}};"><b>{{task.0.status}}</b></td>
-                                <td><a href="{% url 'task_info' task.0.id %}" class="btn btn-sm btn-outline-info">Enter</a></td>
-                            </tr>
-                        {% endfor %}
+    </section>
+    {% include 'hrm/tasks/tasks_table.html' with section_style='px-0 pt-4' %}
+    <script>
+        var element = document.getElementById("notificationScroll");
+        element.scrollTop = element.scrollHeight;
 
-                    </table>
-                </form>
-            </div>
-        </div>
-    </div>
+    </script>
+</div>
 {% endblock %}

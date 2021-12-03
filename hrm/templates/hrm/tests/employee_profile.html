@@ -1,0 +1,88 @@
+{% extends 'hrm/main.html' %}
+{% block content %}
+<style>
+    .profile-head {
+        transform: translateY(5rem)
+    }
+
+    .cover {
+        background-color: rgba(105, 232, 236, 0.75);
+        background-size: cover;
+        background-repeat: no-repeat
+    }
+
+    body {
+        background: #ebeff4;
+
+        min-height: 100vh;
+        overflow-x: hidden
+    }
+</style>
+<div class="row py-2 px-2">
+    <div class="col-md-6 mx-auto">
+        <!-- Profile widget -->
+        <div class="bg-white shadow rounded overflow-hidden">
+            <div class="px-4 pt-0 pb-4 cover">
+                <div class="media align-items-end profile-head">
+                    <div class="profile mr-3"><img
+                            src="https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=80"
+                            alt="..." width="130" class="rounded mb-2 img-thumbnail"><a href="#"
+                                                                                        class="btn btn-outline-dark btn-sm btn-block">Edit
+                        profile</a>
+                    </div>
+                    <div class="media-body mb-5 text-dark">
+                        <h4 class="mt-0 mb-0">{{employee.first_name}} {{employee.last_name}}</h4>
+                        <p class="mb-3">@{{employee.username}}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-light p-4 d-flex justify-content-end text-center align-items-center">
+                <ul class="list-inline mb-0">
+                    <li class="list-inline-item">
+                        <h5 class="font-weight-bold mb-0 d-block">{{tasks_count}}</h5><small class="text-muted">
+                        Total Tasks</small>
+                    </li>
+                    <li class="list-inline-item">
+                        <h5 class="font-weight-bold mb-0 d-block">{{tasks_done_count}}</h5><small class="text-muted">
+                        Done</small>
+                    </li>
+                    <li class="list-inline-item">
+                        <h5 class="font-weight-bold mb-0 d-block">4.9</h5><small class="text-muted">
+                        Rating</small>
+                    </li>
+                </ul>
+            </div>
+            <div class="px-4 py-3">
+                {% with group=employee.groups.all.0.name section=employee.info.section %}
+                {% if group == 'Manager' %}
+                <p class="mb-3">
+                    <button style="pointer-events: none;" class="btn btn-outline-success px-1 py-0"><i class="fas fa-user-tie"></i>
+                        {{group}}
+                    </button>
+                    in
+                    <a href="{% url 'section' section.id%}"
+                                             class="btn btn-outline-primary px-1 py-0">
+                    <i class="fas fa-users"></i>
+                        {{section}}
+                    </a>
+                    section
+                </p>
+                {% else %}
+                <p class="mb-3"><span class="text-primary">{{group}}</span> in
+                    <a href="{% url 'section' section.id %}">{{section}}</a> section
+                </p>
+                {% endif %}
+                {% endwith %}
+                <h5 class="mb-1">About</h5>
+                <div class="p-4 rounded shadow-sm bg-light">
+                    {{employee.info.about}}
+                </div>
+                {% include 'hrm/tasks/tasks_table.html' with section_style='px-0' %}
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+{% endblock %}

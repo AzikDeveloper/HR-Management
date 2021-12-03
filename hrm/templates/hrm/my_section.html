@@ -1,151 +1,173 @@
 {% extends 'hrm/main.html' %}
 {% block content %}
+{% load custom_tags %}
 
-<div class="container m-2">
-    <div class="row">
-        <div class="col-md">
-            <div class="card m-1">
-                <div class="card-header"><h4>Add employee</h4></div>
-                <div class="card-body">
-                    <form method="post" action="{% url 'add_employee' %}">
-                        {% csrf_token %}
-                        <div class="form-group">
-                            <label>Email address</label>
-                            <input type="text" placeholder="example@email.com" name="email" class="form-control" required>
-                            <br>
-                            <input type="hidden" name="next" value="{{request.path}}">
-                            <div class="row">
-                                {% for message in messages %}
-                                    <div class="col-md-8">
-                                        <div class="alert alert-danger">
-                                        <strong>{{message}}</strong>
+<section class="pb-5 pt-2">
+    <div class="container-fluid">
+        <div class="row justify-content-start">
+            <div class="col-lg-3 pb-4">
+                <div class="card m-1">
+                    <div class="card-header"><h4 class="mt-1">Add employee</h4></div>
+                    <div class="card-body pb-1">
+                        <form method="post" action="{% url 'add_employee' %}">
+                            {% csrf_token %}
+                            <div class="form-group">
+                                <label>Email address</label>
+                                <div class="input-group mb-3">
+                                    <input type="text" name="email" class="form-control"
+                                           placeholder="email" required="required">
+                                    <div class="input-group-append pb-4">
+                                        <button type="submit" value="add"
+                                                class="btn btn-primary">
+                                            Create
+                                        </button>
                                     </div>
-                                    </div>
-                                {% endfor %}
-                                <div class="col-md">
-                                    <input type="submit" class="btn btn-info mt-2" value="add" style="float:right;">
                                 </div>
+                                <input type="hidden" name="next" value="{{request.path}}">
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="container-fluid">
+        <div class="row g-4">
+            <div class="col-lg-6 col-md-6 pr-sm-0">
+                <div class="card card-body m-1 p-2 shadow-sm mb-3 bg-white rounded">
+                    <form method="get">
+                        <div class="input-group">
+                            <input type="text" name="username_search" class="form-control"
+                                   placeholder="username">
+                            <div class="input-group-append">
+                                <button type="submit" name="search_manager" value="submit"
+                                        class="btn btn-primary">
+                                    Search
+                                </button>
                             </div>
                         </div>
                     </form>
                 </div>
-            </div>
-        </div>
-
-        <div class="col-md">
-            <div class="card card-body m-1 shadow-sm mb-3 bg-white rounded">
-                <form method="get">
-                    <div class="row">
-                        <div class="col-md-8">
-                            <input type="text" name="username" class="form-control w-100">
-                        </div>
-                        <div class="col-md">
-                             <button class="btn btn-primary" type="submit" name="search_manager" value="submit" style="float:right;">Search</button>
-                        </div>
-                    </div>
-                </form>
-            </div>
-            <div class="card m-1 shadow-sm p-1 mb-5 bg-white rounded">
-                <div class="card-header"><h4>Managers:</h4></div>
-                <div class="card-body p-0">
-                    <table class="table table-sm table-striped">
-                        <thead class="thead-dark">
-                            <tr>
-                            <th>Username</th>
-                            <th style="text-align: center">Send Notification</th>
-                            <th>View</th>
-                        </tr>
-                        </thead>
-                        {% for manager in managers %}
-                            <tr>
-                                {% if request.user.employee == manager %}
-                                <td style="color: green;"><b>{{manager}}</b></td>
-                                {% else %}
-                                     <td>{{manager}}</td>
-                                {% endif %}
-                                <td style="text-align: center">
-                                    {% if request.user.employee != manager %}
-                                        <a data-toggle="modal" id="{{manager.id}}" onclick="setID(this)" data-target="#sendMessage" class="btn btn-sm btn-outline-info">+</a>
-                                    {% endif %}
+                <div class="card m-1 shadow-sm p-1 mb-5 bg-white rounded">
+                    <div class="card-header"><h4>Managers:</h4></div>
+                    <div class="card-body p-0">
+                        <table class="table table-sm table-striped">
+                            <thead class="thead-dark">
+                            <tr class="d-flex">
+                                <th class="col-3">First Name</th>
+                                <th class="col-3">Last Name</th>
+                                <th class="col-3">Username</th>
+                                <th class="col-2 text-center">Send Notify</th>
+                                <th class="col-1">View</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for manager in managers %}
+                            {% if manager.id == request.user.id %}
+                            <tr class="d-flex text-success">
+                            {% else %}
+                                <tr class="d-flex">
+                            {% endif %}
+                                <td class="col-3">{{manager.first_name|if_null:'------'}}</td>
+                                <td class="col-3">{{manager.last_name|if_null:'------'}}</td>
+                                <td class="col-3">{{manager}}</td>
+                                <td class="col-2 text-center">
+                                <button data-toggle="modal" id="{{manager.id}}" onclick="setID(this)"
+                                   data-target="#sendMessage" class="btn btn-sm btn-outline-info">+</button>
                                 </td>
-                                <td><a class="btn btn-outline-info btn-sm" href="{% url 'employee_profile' manager.id %}">View</a></td>
+                                <td class="col-1"><a class="btn btn-outline-info btn-sm"
+                                                     href="{% url 'employee_profile' manager.id %}">View</a></td>
                             </tr>
-                        {% endfor %}
-                    </table>
-                </div>
-            </div>
-        </div>
-        <div class="col-md">
-            <div class="card card-body m-1 shadow-sm mb-3 bg-white rounded">
-                <form method="get">
-                    <div class="row">
-                        <div class="col-md-8">
-                            <input type="text" name="username" class="form-control w-100">
-                        </div>
-                        <div class="col-md">
-                             <button class="btn btn-primary" type="submit" name="search_employee" value="submit" style="float:right;">Search</button>
-                        </div>
-                    </div>
-                </form>
-            </div>
-            <div class="card m-1 shadow-sm p-1 mb-5 bg-white rounded">
-                <div class="card-header"><h4>Employees:</h4></div>
-                <div class="card-body p-0">
-                    <table class="table table-sm table-striped">
-                        <thead class="thead-dark">
-                            <tr>
-                            <th>Username</th>
-                            <th style="text-align: center">Add Task</th>
-                            <th>View</th>
-                        </tr>
-                        </thead>
-                        {% for employee in employees %}
-                            <tr>
-                                <td>{{employee}}</td>
-                                <td style="text-align: center"><a href="{% url 'create_task' employee.id %}?next={{request.path}}" class="btn btn-sm btn-outline-info">+</a> </td>
-                                <td><a class="btn btn-outline-info btn-sm" href="{% url 'employee_profile' employee.id %}">View</a></td>
-                            </tr>
-                        {% endfor %}
-                    </table>
-                </div>
-            </div>
+                            {% endfor %}
+                            </tbody>
+                        </table>
 
+
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 col-md-6 pl-0 pr-sm-2 pl-lg-1 pl-sm-3">
+                <div class="card card-body m-1 p-2 shadow-sm mb-3 bg-white rounded">
+                    <form method="get">
+                        <div class="input-group">
+                            <input type="text" name="username_search" class="form-control"
+                                   placeholder="username">
+                            <div class="input-group-append">
+                                <button type="submit" name="search_employee" value="submit"
+                                        class="btn btn-primary">
+                                    Search
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="card m-1 shadow-sm p-1 mb-5 bg-white rounded">
+                    <div class="card-header"><h4>Employees:</h4></div>
+                    <div class="card-body p-0">
+                        <table class="table table-sm table-striped">
+                            <thead class="thead-dark">
+                            <tr class="d-flex">
+                                <th class="col-3">First Name</th>
+                                <th class="col-3">Last Name</th>
+                                <th class="col-3">Username</th>
+                                <th class="col-2" style="text-align: center">Add Task</th>
+                                <th class="col-1">View</th>
+                            </tr>
+                            </thead>
+                            {% for employee in employees %}
+                            <tr class="d-flex">
+                                <td class="col-3">{{employee.first_name|if_null:'------'}}</td>
+                                <td class="col-3">{{employee.last_name|if_null:'------'}}</td>
+                                <td class="col-3">{{employee}}</td>
+                                <td class="col-2" style="text-align: center"><a
+                                        href="{% url 'create_task' employee.id %}"
+                                        class="btn btn-sm btn-outline-info">+</a>
+                                </td>
+                                <td class="col-1"><a class="btn btn-outline-info btn-sm"
+                                                     href="{% url 'employee_profile' employee.id %}">View</a></td>
+                            </tr>
+                            {% endfor %}
+                        </table>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-
-</div>
-
+</section>
 <!-- Modal SendMessage   -->
-<div class="modal fade" id="sendMessage" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-      <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <form action="{% url 'send_notification' %}" method="POST">
-                      {% csrf_token %}
-                      <div class="modal-header">
-                            <h5 class="modal-title" id="exampleModalLabel">Send Notification</h5>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                              <span aria-hidden="true">&times;</span>
-                            </button>
-                      </div>
-                      <div class="modal-body">
-                            <input type="hidden" id="receiver" name="employee_id" value="">
-                            <input type="hidden" name="next" value="{{request.path}}">
-                            <input type="text" autocomplete="off" name="message" class="form-control">
-                      </div>
-                      <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                            <button type="submit" class="btn btn-primary" onclick="getID()">Send</button>
-                      </div>
-                </form>
-            </div>
-      </div>
+<div class="modal fade" id="sendMessage" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <form action="{% url 'send_notification' %}" method="POST">
+                {% csrf_token %}
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Send Notification</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="receiver" name="employee_id" value="">
+                    <input type="hidden" name="next" value="{{request.path}}">
+                    <input type="text" autocomplete="off" name="message" class="form-control">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary" onclick="getID()">Send</button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
 <script>
     var messageReceiverID;
-    function setID(element){
+
+    function setID(element) {
         messageReceiverID = element.id
     }
-    function getID(){
+
+    function getID() {
         document.getElementById("receiver").value = messageReceiverID
     }
 
